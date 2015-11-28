@@ -220,7 +220,7 @@ NinePatch.prototype.resize = function(width, height) {
 
 //**************************************************************************
 //--------------------------------------------------------------------------
-// Alterator - Container which can call function when it is clicked
+// Button - Container which can call function when it is clicked
 //--------------------------------------------------------------------------
 //**************************************************************************
 function Button() {
@@ -251,9 +251,7 @@ Button.prototype._addInteractive = function() {
 //--------------------------------------------------------------------------
 Button.prototype.setClick = function(func, context) {
 	// create click function
-	var clickFunc = function() {
-		func.call(context);
-	};
+	var clickFunc = func.bind(context);
 
 	// set click function
 	this.on('click', clickFunc).on('tap', clickFunc);
@@ -515,9 +513,7 @@ Draggable.prototype._dragEnd = function() {
 //--------------------------------------------------------------------------
 Draggable.prototype.setDrag = function(func, context) {
 	// create and set custom drag function
-	this._dragFunc = function() {
-		func.call(context);
-	};
+	this._dragFunc = func.bind(context);
 };
 
 

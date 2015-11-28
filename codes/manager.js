@@ -76,10 +76,8 @@ StageManager._updateRenderer = function() {
 //--------------------------------------------------------------------------
 StageManager._start = function() {
 	// request function of next frame
-	var that = this;
-	requestAnimationFrame(function() {
-		that._start.call(that);
-	});
+	var nextFrameFunc = this._start.bind(this);
+	requestAnimationFrame(nextFrameFunc);
 
 	// update renderer
 	this._updateRenderer();
@@ -103,8 +101,6 @@ StageManager.clear =
 //--------------------------------------------------------------------------
 StageManager.setAnimate = function(func, context) {
 	// create and set animation function
-	this._animateFunc = function() {
-		func.call(context);
-	};
+	this._animateFunc = func.bind(context);
 };
 

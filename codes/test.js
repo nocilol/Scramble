@@ -24,17 +24,15 @@ Test.call = function() {
 	loader.reset();
 
 	// load images and setup test
-	var that = this;
+	var setupFunc = this._setup.bind(this);
 	loader.add([this._bgImage, this._catImage, this._dogImage, this._npImage])
-	.load(function() {
-		that.setup.call(that);
-	});
+	.load(setupFunc);
 };
 
 //--------------------------------------------------------------------------
 // Setup test
 //--------------------------------------------------------------------------
-Test.setup = function() {
+Test._setup = function() {
 	// create container and background, cat, dog sprites
 	this._container = new Container();
 	this._bgSprite = new Sprite(loader.resources[this._bgImage].texture);
