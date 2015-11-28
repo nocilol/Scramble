@@ -44,18 +44,23 @@ Test.setup = function() {
 	this._container.addChild(this._catSprite);
 	this._container.addChild(this._dogSprite);
 
-	// create nine-patch and add it to container
+	// create nine-patch
 	this._ninePatch = new NinePatch(
 		loader.resources[this._npImage].texture, 300, 200);
-	this._ninePatch.position.set(700, 10);
-	this._container.addChild(this._ninePatch);
+
+	// create button and add it to container
+	this._button = new Button();
+	this._button.addChild(this._ninePatch);
+	this._button.position.set(700, 10);
+	this._button.setClick(this._click, this);
+	this._container.addChild(this._button);
 
 	// set size of background
 	this._bgSprite.width = 1024;
 	this._bgSprite.height = 768;
 
 	// set animate function
-	StageManager.setAnimate(this.animate, this);
+	StageManager.setAnimate(this._animate, this);
 
 	// add container in stage and show it
 	StageManager.stage.add('test', this._container, true);
@@ -64,9 +69,17 @@ Test.setup = function() {
 //--------------------------------------------------------------------------
 // Animate function of test
 //--------------------------------------------------------------------------
-Test.animate = function() {
+Test._animate = function() {
 	// move cat sprite by (2, 1)
 	this._catSprite.x += 2;
 	this._catSprite.y += 1;
+};
+
+//--------------------------------------------------------------------------
+// Click function of button
+//--------------------------------------------------------------------------
+Test._click = function() {
+	// reset position of cat sprite
+	this._catSprite.position.set(0, 0);
 };
 

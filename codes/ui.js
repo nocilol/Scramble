@@ -214,3 +214,48 @@ NinePatch.prototype.resize = function(width, height) {
 	this._updateSprites();
 };
 
+
+
+
+
+//**************************************************************************
+//--------------------------------------------------------------------------
+// Alterator - Container which can call function when it is clicked
+//--------------------------------------------------------------------------
+//**************************************************************************
+function Button() {
+	// super
+	Container.call(this);
+
+	// add interactivity
+	this._addInteractive();
+}
+
+// extends Container
+Button.prototype = Object.create(Container.prototype);
+Button.prototype.constructor = Button;
+
+//--------------------------------------------------------------------------
+// Add interactivity
+//--------------------------------------------------------------------------
+Button.prototype._addInteractive = function() {
+	// set interactive property to true
+	this.interactive = true;
+
+	// set button-mode property to true
+	this.buttonMode = true;
+};
+
+//--------------------------------------------------------------------------
+// Set click function
+//--------------------------------------------------------------------------
+Button.prototype.setClick = function(func, context) {
+	// create click function
+	var clickFunc = function() {
+		func.call(context);
+	};
+
+	// set click function
+	this.on('click', clickFunc).on('tap', clickFunc);
+};
+
