@@ -520,3 +520,117 @@ Draggable.prototype.setDrag = function(func, context) {
 	};
 };
 
+
+
+
+
+//**************************************************************************
+//--------------------------------------------------------------------------
+// Scroll Container - Mask Container which can scroll contents in it
+//--------------------------------------------------------------------------
+//**************************************************************************
+function ScrollContainer(scrWidth, scrHeight, conWidth, conHeight) {
+	// super
+	MaskContainer.call(this, scrWidth, scrHeight);
+
+	// set attributes
+	this._scrWidth = scrWidth;
+	this._scrHeight = scrHeight;
+	this._conWidth = conWidth || scrWidth;
+	this._conHeight = conHeight || scrHeight;
+	this.contents = null;
+	this._scroller = null;
+
+	this._addScroller();
+	this._addContents();
+
+	this._updateScroller();
+}
+
+// extends MaskContainer
+ScrollContainer.prototype = Object.create(MaskContainer.prototype);
+ScrollContainer.prototype.constructor = ScrollContainer;
+
+//--------------------------------------------------------------------------
+// Add scroller
+//--------------------------------------------------------------------------
+ScrollContainer.prototype._addScroller = function() {
+	// create scroller by using graphics object
+	this._scroller = new Graphics();
+
+	// add scroller to this(mask-container)
+	this.addChild(this._scroller);
+
+	// set scroller to be invisible
+	this._scroller.visible = false;
+};
+
+//--------------------------------------------------------------------------
+// Add contents
+//--------------------------------------------------------------------------
+ScrollContainer.prototype._addContents = function() {
+	// create contents by using draggable object
+	this.contents = new Draggable(this._scroller);
+
+	// add contents to this(mask-container)
+	this.addChild(this.contents);
+};
+
+//--------------------------------------------------------------------------
+// Update scroller
+//--------------------------------------------------------------------------
+ScrollContainer.prototype._updateScroller = function() {
+	// calculate bound(area) of scroller
+	var bound = {};
+	if (this._scrWidth >= this._conWidth) {
+		bound.x = 0;
+		bound.width = this._conWidth;
+	} else {
+		bound.x = this._scrWidth - this._conWidth;
+		bound.width = 2 * this._conWidth - this._scrWidth;
+	}
+	if (this._scrHeight >= this._conHeight) {
+		bound.y = 0;
+		bound.height = this._conHeight;
+	} else {
+		bound.y = this._scrHeight - this._conHeight;
+		bound.height = 2 * this._conHeight - this._scrHeight;
+	}
+
+	// draw scroller
+	this._scroller.clear();
+	this._scroller.beginFill();
+	this._scroller.drawRect(bound.x, bound.y, bound.width, bound.height);
+	this._scroller.endFill();
+
+	// set position of scroller
+	this._scroller.position.set(bound.x, bound.y);
+};
+
+//--------------------------------------------------------------------------
+// Update size of contents
+//--------------------------------------------------------------------------
+ScrollContainer.prototype.update = function(conWidth, conHeight) {
+	// reset size of contents
+	this._conWidth = conWidth;
+	this._conHeight = conHeight;
+	
+	// update scroller
+	this._updateScroller();
+};
+
+//--------------------------------------------------------------------------
+// Resize scroller
+//--------------------------------------------------------------------------
+ScrollContainer.prototype.resize = function(scrWidth, scrHeight) {
+	// super
+	MaskContainer.prototype.resize.call(this, scrWidth, scrHeight);
+
+	// reset size of scroller
+	this._scrWidth = scrWidth;
+	this._scrHeight = scrHeight;
+
+	// update scroller
+	this._updateScroller();
+};
+

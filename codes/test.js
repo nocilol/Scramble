@@ -56,11 +56,12 @@ Test.setup = function() {
 	this._toggle.setClick(this._click, this);
 	this._container.addChild(this._toggle);
 
-	// create draggable and add it to container
-	this._draggable = new Draggable(this._catSprite);
-	this._draggable.addChild(this._dogSprite);
-	this._draggable.setDrag(this._drag, this);
-	this._container.addChild(this._draggable);
+	// create scroll container and add it to container
+	this._scrCont = new ScrollContainer(200, 200);
+	this._scrCont.update(this._dogSprite.width, this._dogSprite.height);
+	this._scrCont.contents.addChild(this._dogSprite);
+	this._scrCont.position.set(20, 500);
+	this._container.addChild(this._scrCont);
 
 	// set size of background
 	this._bgSprite.width = 1024;
