@@ -259,3 +259,55 @@ Button.prototype.setClick = function(func, context) {
 	this.on('click', clickFunc).on('tap', clickFunc);
 };
 
+
+
+
+
+//**************************************************************************
+//--------------------------------------------------------------------------
+// Toggle - Button which can save toggle(on/off) state
+//           and apply it to function
+//--------------------------------------------------------------------------
+//**************************************************************************
+function Toggle(toggle) {
+	// super
+	Button.call(this);
+
+	// set attribute
+	this._toggle = toggle || false;
+}
+
+// extends Button
+Toggle.prototype = Object.create(Button.prototype);
+Toggle.prototype.constructor = Toggle;
+
+//--------------------------------------------------------------------------
+// Set toggle value
+//--------------------------------------------------------------------------
+Toggle.prototype.setToggle = function(toggle) {
+	// set toggle value
+	this._toggle = toggle;
+};
+
+//--------------------------------------------------------------------------
+// Swap toggle value
+//--------------------------------------------------------------------------
+Toggle.prototype.swapToggle = function() {
+	// swap toggle value
+	this._toggle = !this._toggle;
+};
+
+//--------------------------------------------------------------------------
+// Set click function
+//--------------------------------------------------------------------------
+Toggle.prototype.setClick = function(func, context) {
+	// create click function
+	var clickFunc = function() {
+		this.swapToggle();
+		func.call(context, this._toggle);
+	};
+
+	// set click function
+	this.on('click', clickFunc).on('tap', clickFunc);
+};
+

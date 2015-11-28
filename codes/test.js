@@ -48,12 +48,12 @@ Test.setup = function() {
 	this._ninePatch = new NinePatch(
 		loader.resources[this._npImage].texture, 300, 200);
 
-	// create button and add it to container
-	this._button = new Button();
-	this._button.addChild(this._ninePatch);
-	this._button.position.set(700, 10);
-	this._button.setClick(this._click, this);
-	this._container.addChild(this._button);
+	// create toggle and add it to container
+	this._toggle = new Toggle(false);
+	this._toggle.addChild(this._ninePatch);
+	this._toggle.position.set(700, 10);
+	this._toggle.setClick(this._click, this);
+	this._container.addChild(this._toggle);
 
 	// set size of background
 	this._bgSprite.width = 1024;
@@ -76,10 +76,11 @@ Test._animate = function() {
 };
 
 //--------------------------------------------------------------------------
-// Click function of button
+// Click function of toggle
 //--------------------------------------------------------------------------
-Test._click = function() {
+Test._click = function(toggle) {
 	// reset position of cat sprite
-	this._catSprite.position.set(0, 0);
+	var resetPos = toggle ? 0 : 200;
+	this._catSprite.position.set(resetPos, resetPos);
 };
 
