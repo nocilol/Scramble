@@ -35,14 +35,15 @@ Test.call = function() {
 // Setup test
 //--------------------------------------------------------------------------
 Test.setup = function() {
-	// create container and add background, cat, dog sprites in it
+	// create container and background, cat, dog sprites
 	this._container = new Container();
 	this._bgSprite = new Sprite(loader.resources[this._bgImage].texture);
 	this._catSprite = new Sprite(loader.resources[this._catImage].texture);
 	this._dogSprite = new Sprite(loader.resources[this._dogImage].texture);
+
+	// add background, and cat sprite to container
 	this._container.addChild(this._bgSprite);
 	this._container.addChild(this._catSprite);
-	this._container.addChild(this._dogSprite);
 
 	// create nine-patch
 	this._ninePatch = new NinePatch(
@@ -54,6 +55,13 @@ Test.setup = function() {
 	this._toggle.position.set(700, 10);
 	this._toggle.setClick(this._click, this);
 	this._container.addChild(this._toggle);
+
+	// create mask container and add it to container
+	this._maskContainer = new MaskContainer(200, 200);
+	this._maskContainer.addChild(this._dogSprite);
+	this._dogSprite.position.set(-20, -10);
+	this._maskContainer.position.set(10, 500);
+	this._container.addChild(this._maskContainer);
 
 	// set size of background
 	this._bgSprite.width = 1024;

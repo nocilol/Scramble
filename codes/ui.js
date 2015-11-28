@@ -311,3 +311,70 @@ Toggle.prototype.setClick = function(func, context) {
 	this.on('click', clickFunc).on('tap', clickFunc);
 };
 
+
+
+
+
+//**************************************************************************
+//--------------------------------------------------------------------------
+// Mask Container - Container which only render specific area
+//--------------------------------------------------------------------------
+//**************************************************************************
+function MaskContainer(width, height) {
+	// super
+	Container.call(this);
+	
+	// set attributes
+	this._maskWidth = width;
+	this._maskHeight = height;
+
+	// add mask
+	this._addMask();
+
+	// update mask
+	this._updateMask();
+}
+
+// extends Container
+MaskContainer.prototype = Object.create(Container.prototype);
+MaskContainer.prototype.constructor = MaskContainer;
+
+//--------------------------------------------------------------------------
+// Add mask
+//--------------------------------------------------------------------------
+MaskContainer.prototype._addMask = function() {
+	// create mask area by using graphics object
+	this._maskArea = new Graphics();
+
+	// add mask to this(container)
+	this.addChild(this._maskArea);
+
+	// set mask
+	this.mask = this._maskArea;
+};
+
+//--------------------------------------------------------------------------
+// Update mask
+//--------------------------------------------------------------------------
+MaskContainer.prototype._updateMask = function() {
+	// clear mask area
+	this._maskArea.clear();
+
+	// draw mask area
+	this._maskArea.beginFill();
+	this._maskArea.drawRect(0, 0, this._maskWidth, this._maskHeight);
+	this._maskArea.endFill();
+};
+
+//--------------------------------------------------------------------------
+// Resize mask
+//--------------------------------------------------------------------------
+MaskContainer.prototype.resize = function(width, height) {
+	// reset size of mask
+	this._maskWidth = width;
+	this._maskHeight = height;
+
+	// update mask
+	this._updateMask();
+};
+
