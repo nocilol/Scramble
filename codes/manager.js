@@ -5,6 +5,7 @@
 //--------------------------------------------------------------------------
 //**************************************************************************
 function StageManager() {
+	// static class
 	throw new Error('This is a static class');
 }
 
@@ -68,7 +69,7 @@ StageManager._updateRenderer = function() {
 	this._renderer.view.style.left = (wiWidth - scWidth) / 2 + 'px';
 	this._renderer.view.style.top = (wiHeight - scHeight) / 2 + 'px';
 	this._renderer.view.style.display = 'block';
-}
+};
 
 //--------------------------------------------------------------------------
 // Start animation

@@ -42,7 +42,7 @@ Alterator.prototype.add = function(key, object, show) {
 Alterator.prototype.set = function(key, object) {
 	// set object into map
 	this._map[key] = object;
-}
+};
 
 //--------------------------------------------------------------------------
 // Get object from map
@@ -107,5 +107,110 @@ Alterator.prototype.before = function() {
 Alterator.prototype.clear = function() {
 	// create new empty stack for clearing
 	this._stack = [];
+};
+
+
+
+
+
+//**************************************************************************
+//--------------------------------------------------------------------------
+// Nine Patch - Container which can display nine patch texture
+//--------------------------------------------------------------------------
+//**************************************************************************
+function NinePatch(texture, width, height, border) {
+	// super
+	Container.call(this);
+
+	// set attributes
+	this._npTexture = texture;
+	this._npWidth = width;
+	this._npHeight = height;
+	this._npSprites = {};
+	this._npBorder = border || (Math.min(texture.width, texture.height) / 3);
+	
+	// add sprites
+	this._addSprites();
+
+	// set frames
+	this._setFrames();
+
+	// update sprites
+	this._updateSprites();
+}
+
+// extends Container
+NinePatch.prototype = Object.create(Container.prototype);
+NinePatch.prototype.constructor = NinePatch;
+
+//--------------------------------------------------------------------------
+// Add sprites
+//--------------------------------------------------------------------------
+NinePatch.prototype._addSprites = function() {
+	// create and add sprites to this(container)
+	this.addChild(this._npSprites['u'] = new Sprite(this._npTexture.clone()));
+	this.addChild(this._npSprites['d'] = new Sprite(this._npTexture.clone()));
+	this.addChild(this._npSprites['l'] = new Sprite(this._npTexture.clone()));
+	this.addChild(this._npSprites['r'] = new Sprite(this._npTexture.clone()));
+	this.addChild(this._npSprites['ul'] = new Sprite(this._npTexture.clone()));
+	this.addChild(this._npSprites['ur'] = new Sprite(this._npTexture.clone()));
+	this.addChild(this._npSprites['dl'] = new Sprite(this._npTexture.clone()));
+	this.addChild(this._npSprites['dr'] = new Sprite(this._npTexture.clone()));
+	this.addChild(this._npSprites['c'] = new Sprite(this._npTexture.clone()));
+};
+
+//--------------------------------------------------------------------------
+// Set frames
+//--------------------------------------------------------------------------
+NinePatch.prototype._setFrames = function() {
+	// aliasing for shorter notation
+	var tw = this._npTexture.width;
+	var th = this._npTexture.height;
+	var tb = this._npBorder;
+	
+	// create and set frames
+	this._npSprites['u'].texture.frame = new Rectangle(tb, 0, tw - 2 * tb, tb);
+	this._npSprites['d'].texture.frame = new Rectangle(tb, th - tb, tw - 2 * tb, tb);
+	this._npSprites['l'].texture.frame = new Rectangle(0, tb, tb, th - 2 * tb);
+	this._npSprites['r'].texture.frame = new Rectangle(tw - tb, tb, tb, th - 2 * tb);
+	this._npSprites['ul'].texture.frame = new Rectangle(0, 0, tb, tb);
+	this._npSprites['ur'].texture.frame = new Rectangle(tw - tb, 0, tb, tb);
+	this._npSprites['dl'].texture.frame = new Rectangle(0, th - tb, tb, tb);
+	this._npSprites['dr'].texture.frame = new Rectangle(tw - tb, th - tb, tb, tb);
+	this._npSprites['c'].texture.frame = new Rectangle(tb, tb, tw - 2 * tb, th - 2 * tb);
+};
+
+//--------------------------------------------------------------------------
+// Update sprites
+//--------------------------------------------------------------------------
+NinePatch.prototype._updateSprites = function() {
+	// aliasing for shorter notation
+	var w = this._npWidth;
+	var h = this._npHeight;
+	var b = this._npBorder;
+	var s; // temporary variable for sprite
+
+	// reset position and size of sprites
+	s = this._npSprites['u']; s.x = b; s.y = 0; s.width = w - 2 * b; s.height = b;
+	s = this._npSprites['d']; s.x = b; s.y = h - b; s.width = w - 2 * b; s.height = b;
+	s = this._npSprites['l']; s.x = 0; s.y = b; s.width = b; s.height = h - 2 * b;
+	s = this._npSprites['r']; s.x = w - b; s.y = b; s.width = b; s.height = h - 2 * b;
+	s = this._npSprites['ul']; s.x = 0; s.y = 0; s.width = b; s.height = b;
+	s = this._npSprites['ur']; s.x = w - b; s.y = 0; s.width = b; s.height = b;
+	s = this._npSprites['dl']; s.x = 0; s.y = h - b; s.width = b; s.height = b;
+	s = this._npSprites['dr']; s.x = w - b; s.y = h - b; s.width = b; s.height = b;
+	s = this._npSprites['c']; s.x = b; s.y = b; s.width = w - 2 * b; s.height = h - 2 * b;
+};
+
+//--------------------------------------------------------------------------
+// Resize nine-patch
+//--------------------------------------------------------------------------
+NinePatch.prototype.resize = function(width, height) {
+	// reset size of nine-patch
+	this._npWidth = width;
+	this._npHeight = height;
+
+	// update sprites
+	this._updateSprites();
 };
 
