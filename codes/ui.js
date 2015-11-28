@@ -323,7 +323,7 @@ Toggle.prototype.setClick = function(func, context) {
 function MaskContainer(width, height) {
 	// super
 	Container.call(this);
-	
+
 	// set attributes
 	this._maskWidth = width;
 	this._maskHeight = height;
@@ -376,5 +376,147 @@ MaskContainer.prototype.resize = function(width, height) {
 
 	// update mask
 	this._updateMask();
+};
+
+//--------------------------------------------------------------------------
+// Get mask area
+//--------------------------------------------------------------------------
+MaskContainer.prototype.getArea = function() {
+	return this._maskArea;
+};
+
+
+
+
+
+//**************************************************************************
+//--------------------------------------------------------------------------
+// Draggable - Container which can be dragged
+//--------------------------------------------------------------------------
+//**************************************************************************
+function Draggable(constraint) {
+	// super
+	Container.call(this);
+	
+	// set attributes
+	this.constraint = constraint || null;
+	this._dragFunc = null;
+
+	// add interactivity
+	this._addInteractive();
+
+	// add drag functions
+	this._addDrag();
+}
+
+// extends Container
+Draggable.prototype = Object.create(Container.prototype);
+Draggable.prototype.constructor = Draggable;
+
+//--------------------------------------------------------------------------
+// Add interactivity
+//--------------------------------------------------------------------------
+Draggable.prototype._addInteractive = function() {
+	// set interactive property to true
+	this.interactive = true;
+
+	// set button-mode property to true
+	this.buttonMode = true;
+};
+
+//--------------------------------------------------------------------------
+// Add drag funtions
+//--------------------------------------------------------------------------
+Draggable.prototype._addDrag = function() {
+	// add drag functions
+	this.on('mousedown', this._dragStart).on('touchstart', this._dragStart);
+	this.on('mousemove', this._dragMove).on('touchmove', this._dragMove);
+	this.on('mouseup', this._dragEnd).on('touchend', this._dragEnd);
+	this.on('mouseupoutside', this._dragEnd).on('touchendoutside', this._dragEnd);
+};
+
+//--------------------------------------------------------------------------
+// Drag start function
+//--------------------------------------------------------------------------
+Draggable.prototype._dragStart = function(event) {
+	// set drag data
+	this._dragData = event.data;
+	this._dragOrg = {x : this.x, y : this.y};
+	this._dragPos = event.data.global.clone();
+	this._dragging = true;
+};
+
+//--------------------------------------------------------------------------
+// Drag move function
+//--------------------------------------------------------------------------
+Draggable.prototype._dragMove = function() {
+	// check if not dragging
+	if (!this._dragging)
+		return; // need not move
+
+	// calculate difference of drag position
+	var difX = this._dragData.global.x - this._dragPos.x;
+	var difY = this._dragData.global.y - this._dragPos.y;
+
+	// get move position
+	var movePos = this._getMovePos(difX, difY);
+
+	// set position
+	this.position.set(movePos.x, movePos.y);
+
+	// check if custom drag function exists
+	if (this._dragFunc)
+		this._dragFunc(); // call custom drag function
+};
+
+//--------------------------------------------------------------------------
+// Get drag move position
+//--------------------------------------------------------------------------
+Draggable.prototype._getMovePos = function(difX, difY) {
+	// create bound object of this
+	var fixBound = {width : this.width, height : this.height,
+		x : (this._dragOrg.x + difX), y : (this._dragOrg.y + difY)};
+
+	// check if constraint exists
+	if (this.constraint) {
+		// create bound object of constraint object
+		var consBound = this.parent.toLocal(
+			this.constraint.position, this.constraint.parent);
+		consBound.width = this.constraint.width;
+		consBound.height = this.constraint.height;
+
+		// fix position by considering constraint
+		if (fixBound.x < consBound.x)
+			fixBound.x = consBound.x;
+		if (fixBound.y < consBound.y)
+			fixBound.y = consBound.y;
+		if (fixBound.x + fixBound.width > consBound.x + consBound.width)
+			fixBound.x = consBound.x + consBound.width - fixBound.width;
+		if (fixBound.y + fixBound.height > consBound.y + consBound.height)
+			fixBound.y = consBound.y + consBound.height - fixBound.height;
+	}
+
+	// return bound object which contains position info.
+	return fixBound;
+};
+
+//--------------------------------------------------------------------------
+// Drag end function
+//--------------------------------------------------------------------------
+Draggable.prototype._dragEnd = function() {
+	// erase drag data
+	this._dragData = null;
+	this._dragStartPos = null;
+	this._dragging = false;
+};
+
+//--------------------------------------------------------------------------
+// Set custom drag function
+//--------------------------------------------------------------------------
+Draggable.prototype.setDrag = function(func, context) {
+	// create and set custom drag function
+	this._dragFunc = function() {
+		func.call(context);
+	};
 };
 

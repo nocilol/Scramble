@@ -56,12 +56,11 @@ Test.setup = function() {
 	this._toggle.setClick(this._click, this);
 	this._container.addChild(this._toggle);
 
-	// create mask container and add it to container
-	this._maskContainer = new MaskContainer(200, 200);
-	this._maskContainer.addChild(this._dogSprite);
-	this._dogSprite.position.set(-20, -10);
-	this._maskContainer.position.set(10, 500);
-	this._container.addChild(this._maskContainer);
+	// create draggable and add it to container
+	this._draggable = new Draggable(this._catSprite);
+	this._draggable.addChild(this._dogSprite);
+	this._draggable.setDrag(this._drag, this);
+	this._container.addChild(this._draggable);
 
 	// set size of background
 	this._bgSprite.width = 1024;
@@ -78,9 +77,9 @@ Test.setup = function() {
 // Animate function of test
 //--------------------------------------------------------------------------
 Test._animate = function() {
-	// move cat sprite by (2, 1)
-	this._catSprite.x += 2;
-	this._catSprite.y += 1;
+	// move cat sprite by (0.2, 0.1)
+	this._catSprite.x += 0.2;
+	this._catSprite.y += 0.1;
 };
 
 //--------------------------------------------------------------------------
@@ -90,5 +89,13 @@ Test._click = function(toggle) {
 	// reset position of cat sprite
 	var resetPos = toggle ? 0 : 200;
 	this._catSprite.position.set(resetPos, resetPos);
+};
+
+//--------------------------------------------------------------------------
+// Drag function of draggable
+//--------------------------------------------------------------------------
+Test._drag = function() {
+	console.log('Drag Position: (' +
+		this._draggable.x + ', ' + this._draggable.y + ')');
 };
 
