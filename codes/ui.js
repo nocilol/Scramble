@@ -526,7 +526,9 @@ function Draggable(constraint) {
 	
 	// set attributes
 	this.constraint = constraint || null;
-	this._dragFunc = null;
+	this._startFunc = null;
+	this._moveFunc = null;
+	this._endFunc = null;
 
 	// add interactivity
 	this._addInteractive();
@@ -570,6 +572,10 @@ Draggable.prototype._dragStart = function(event) {
 	this._dragOrg = {x : this.x, y : this.y};
 	this._dragPos = event.data.global.clone();
 	this._dragging = true;
+
+	// check if custom start function exists
+	if (this._startFunc)
+		this._startFunc(); // call custom start function
 };
 
 //--------------------------------------------------------------------------
@@ -590,9 +596,9 @@ Draggable.prototype._dragMove = function() {
 	// set position
 	this.position.set(movePos.x, movePos.y);
 
-	// check if custom drag function exists
-	if (this._dragFunc)
-		this._dragFunc(); // call custom drag function
+	// check if custom move function exists
+	if (this._moveFunc)
+		this._moveFunc(); // call custom move function
 };
 
 //--------------------------------------------------------------------------
@@ -634,14 +640,34 @@ Draggable.prototype._dragEnd = function() {
 	this._dragData = null;
 	this._dragStartPos = null;
 	this._dragging = false;
+
+	// check if custom end function exists
+	if (this._endFunc)
+		this._endFunc(); // call custom end function
 };
 
 //--------------------------------------------------------------------------
-// Set custom drag function
+// Set custom start function
 //--------------------------------------------------------------------------
-Draggable.prototype.setDrag = function(func, context) {
-	// create and set custom drag function
-	this._dragFunc = func.bind(context);
+Draggable.prototype.setStart = function(func, context) {
+	// create and set custom start function
+	this._startFunc = func.bind(context);
+};
+
+//--------------------------------------------------------------------------
+// Set custom move function
+//--------------------------------------------------------------------------
+Draggable.prototype.setMove = function(func, context) {
+	// create and set custom move function
+	this._moveFunc = func.bind(context);
+};
+
+//--------------------------------------------------------------------------
+// Set custom end function
+//--------------------------------------------------------------------------
+Draggable.prototype.setEnd = function(func, context) {
+	// create and set custom end function
+	this._endFunc = func.bind(context);
 };
 
 
