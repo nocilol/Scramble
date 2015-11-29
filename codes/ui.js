@@ -300,7 +300,7 @@ Toggle.prototype.setToggle = function(toggle) {
 //--------------------------------------------------------------------------
 Toggle.prototype.swapToggle = function() {
 	// swap toggle value
-	this.setToggle(!this._toggle);
+	this.setToggle(!this.getToggle());
 };
 
 //--------------------------------------------------------------------------
