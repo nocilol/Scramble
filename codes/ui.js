@@ -636,7 +636,7 @@ ScrollContainer.prototype.resize = function(scrWidth, scrHeight) {
 
 //**************************************************************************
 //--------------------------------------------------------------------------
-// Nine Patch Text Button - Button which contains nine patch and text
+// Text Button - Button which contains nine patch and text
 //--------------------------------------------------------------------------
 //**************************************************************************
 function TextButton(texture, width, height, text, padding, style, align, offsetY) {
@@ -744,5 +744,66 @@ TextButton.prototype.setText = function(text, padding, style, align, offsetY) {
 
 	// update text-object
 	this._updateText();
+};
+
+
+
+
+
+//**************************************************************************
+//--------------------------------------------------------------------------
+// Image Button - Button which contains image sprite
+//--------------------------------------------------------------------------
+//**************************************************************************
+function ImageButton(texture, width, height) {
+	// super
+	Button.call(this);
+
+	// set attributes
+	this._ibTexture = texture;
+	this._ibWidth = width;
+	this._ibHeight = height;
+
+	// add image
+	this._addImage();
+
+	// update image
+	this._updateImage();
+}
+
+// extends Button
+ImageButton.prototype = Object.create(Button.prototype);
+ImageButton.prototype.constructor = ImageButton;
+
+//--------------------------------------------------------------------------
+// Add image
+//--------------------------------------------------------------------------
+ImageButton.prototype._addImage = function() {
+	// create image by using sprite-object
+	this._ibImage = new Sprite(this._ibTexture);
+
+	// add image to this(button)
+	this.addChild(this._ibImage);
+};
+
+//--------------------------------------------------------------------------
+// Update image
+//--------------------------------------------------------------------------
+ImageButton.prototype._updateImage = function() {
+	// reset size of image sprite
+	this._ibImage.width = this._ibWidth;
+	this._ibImage.height = this._ibHeight;
+};
+
+//--------------------------------------------------------------------------
+// Resize button
+//--------------------------------------------------------------------------
+ImageButton.prototype.resize = function(width, height) {
+	// reset size
+	this._ibWidth = width;
+	this._ibHeight = height;
+
+	// update image
+	this._updateImage();
 };
 

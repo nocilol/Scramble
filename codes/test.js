@@ -43,13 +43,20 @@ Test._setup = function() {
 	this._container.addChild(this._bgSprite);
 	this._container.addChild(this._catSprite);
 
-	// create text-button
+	// create text-button and add it to container
 	this._textBtn = new TextButton(
 		loader.resources[this._npImage].texture, 250, 50, 'Hello World !');
 	this._textBtn.position.set(750, 20)
-	this._textBtn.setClick(this._click, this);
+	this._textBtn.setClick(this._clickText, this);
 	this._container.addChild(this._textBtn);
 
+	// create image-button and add it to container
+	this._imgBtn = new ImageButton(
+		loader.resources[this._bgImage].texture, 200, 100)
+	this._imgBtn.position.set(400, 10);
+	this._imgBtn.setClick(this._clickImage, this);
+	this._container.addChild(this._imgBtn);
+	
 	// create scroll container and add it to container
 	this._scrCont = new ScrollContainer(200, 200);
 	this._scrCont.update(this._dogSprite.width, this._dogSprite.height);
@@ -78,11 +85,19 @@ Test._animate = function() {
 };
 
 //--------------------------------------------------------------------------
-// Click function of toggle
+// Click function of text-button
 //--------------------------------------------------------------------------
-Test._click = function() {
+Test._clickText = function() {
 	// reset position of cat sprite
 	this._catSprite.position.set(0, 0);
+};
+
+//--------------------------------------------------------------------------
+// Click function of image-button
+//--------------------------------------------------------------------------
+Test._clickImage = function() {
+	// change visibility of background
+	this._bgSprite.visible = !this._bgSprite.visible;
 };
 
 //--------------------------------------------------------------------------
