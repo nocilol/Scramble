@@ -16,6 +16,8 @@ Test.call = function() {
 	this._catImage = 'images/Cat.png';
 	this._dogImage = 'images/Dog.png';
 	this._npImage = 'ui/red_button08.png';
+	this._onImage = 'ui/red_boxCheckmark.png';
+	this._offImage = 'ui/grey_box.png';
 
 	// clear stage
 	StageManager.clear();
@@ -25,8 +27,8 @@ Test.call = function() {
 
 	// load images and setup test
 	var setupFunc = this._setup.bind(this);
-	loader.add([this._bgImage, this._catImage, this._dogImage, this._npImage])
-	.load(setupFunc);
+	loader.add([this._bgImage, this._catImage, this._dogImage,
+		this._npImage, this._onImage, this._offImage]).load(setupFunc);
 };
 
 //--------------------------------------------------------------------------
@@ -56,7 +58,14 @@ Test._setup = function() {
 	this._imgBtn.position.set(400, 10);
 	this._imgBtn.setClick(this._clickImage, this);
 	this._container.addChild(this._imgBtn);
-	
+
+	// create image-toggle and add it to container
+	this._imgTgl = new ImageToggle(loader.resources[this._onImage].texture,
+		loader.resources[this._offImage].texture, 40, 40, true);
+	this._imgTgl.position.set(980, 720);
+	this._imgTgl.setClick(this._clickToggle, this);
+	this._container.addChild(this._imgTgl);
+
 	// create scroll container and add it to container
 	this._scrCont = new ScrollContainer(200, 200);
 	this._scrCont.update(this._dogSprite.width, this._dogSprite.height);
@@ -98,6 +107,14 @@ Test._clickText = function() {
 Test._clickImage = function() {
 	// change visibility of background
 	this._bgSprite.visible = !this._bgSprite.visible;
+};
+
+//--------------------------------------------------------------------------
+// Click function of image-toggle
+//--------------------------------------------------------------------------
+Test._clickToggle = function(toggle) {
+	// change visibility of cat sprite
+	this._catSprite.visible = toggle;
 };
 
 //--------------------------------------------------------------------------

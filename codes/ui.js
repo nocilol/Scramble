@@ -280,6 +280,14 @@ Toggle.prototype = Object.create(Button.prototype);
 Toggle.prototype.constructor = Toggle;
 
 //--------------------------------------------------------------------------
+// Get toggle value
+//--------------------------------------------------------------------------
+Toggle.prototype.getToggle = function() {
+	// return toggle value
+	return this._toggle;
+};
+
+//--------------------------------------------------------------------------
 // Set toggle value
 //--------------------------------------------------------------------------
 Toggle.prototype.setToggle = function(toggle) {
@@ -292,7 +300,7 @@ Toggle.prototype.setToggle = function(toggle) {
 //--------------------------------------------------------------------------
 Toggle.prototype.swapToggle = function() {
 	// swap toggle value
-	this._toggle = !this._toggle;
+	this.setToggle(!this._toggle);
 };
 
 //--------------------------------------------------------------------------
@@ -802,6 +810,80 @@ ImageButton.prototype.resize = function(width, height) {
 	// reset size
 	this._ibWidth = width;
 	this._ibHeight = height;
+
+	// update image
+	this._updateImage();
+};
+
+
+
+
+
+//**************************************************************************
+//--------------------------------------------------------------------------
+// Image Toggle - Toggle which contains image sprite
+//--------------------------------------------------------------------------
+//**************************************************************************
+function ImageToggle(textureOn, textureOff, width, height, toggle) {
+	// super
+	Toggle.call(this, toggle);
+
+	// set attributes
+	this._itTexOn = textureOn;
+	this._itTexOff = textureOff;
+	this._itWidth = width;
+	this._itHeight = height;
+
+	// add image
+	this._addImage();
+
+	// update image
+	this._updateImage();
+}
+
+// extends Toggle
+ImageToggle.prototype = Object.create(Toggle.prototype);
+ImageToggle.prototype.constructor = ImageToggle;
+
+//--------------------------------------------------------------------------
+// Add image
+//--------------------------------------------------------------------------
+ImageToggle.prototype._addImage = function() {
+	// create image by using sprite-object
+	this._itImage = new Sprite(
+		this.getToggle() ? this._itTexOn : this._itTexOff);
+
+	// add image to this(button)
+	this.addChild(this._itImage);
+};
+
+//--------------------------------------------------------------------------
+// Update image
+//--------------------------------------------------------------------------
+ImageToggle.prototype._updateImage = function() {
+	// reset size of image sprite
+	this._itImage.width = this._itWidth;
+	this._itImage.height = this._itHeight;
+};
+
+//--------------------------------------------------------------------------
+// Set toggle
+//--------------------------------------------------------------------------
+ImageToggle.prototype.setToggle = function(toggle) {
+	// super
+	Toggle.prototype.setToggle.call(this, toggle);
+
+	// change texture of image sprite
+	this._itImage.texture = toggle ? this._itTexOn : this._itTexOff;
+};
+
+//--------------------------------------------------------------------------
+// Resize button
+//--------------------------------------------------------------------------
+ImageToggle.prototype.resize = function(width, height) {
+	// reset size
+	this._itWidth = width;
+	this._itHeight = height;
 
 	// update image
 	this._updateImage();
