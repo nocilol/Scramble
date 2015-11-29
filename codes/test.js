@@ -16,6 +16,7 @@ Test.call = function() {
 	this._catImage = 'images/Cat.png';
 	this._dogImage = 'images/Dog.png';
 	this._npImage = 'ui/red_button08.png';
+	this._tfImage = 'ui/red_button03.png';
 	this._onImage = 'ui/red_boxCheckmark.png';
 	this._offImage = 'ui/grey_box.png';
 
@@ -28,7 +29,8 @@ Test.call = function() {
 	// load images and setup test
 	var setupFunc = this._setup.bind(this);
 	loader.add([this._bgImage, this._catImage, this._dogImage,
-		this._npImage, this._onImage, this._offImage]).load(setupFunc);
+		this._npImage, this._tfImage, this._onImage, this._offImage])
+	.load(setupFunc);
 };
 
 //--------------------------------------------------------------------------
@@ -48,8 +50,9 @@ Test._setup = function() {
 	// create text-button and add it to container
 	this._textBtn = new TextButton(
 		loader.resources[this._npImage].texture, 250, 50, 'Hello World !');
-	this._textBtn.position.set(750, 20)
+	this._textBtn.position.set(800, 20)
 	this._textBtn.setClick(this._clickText, this);
+	this._textBtn.fit();
 	this._container.addChild(this._textBtn);
 
 	// create image-button and add it to container
@@ -66,12 +69,18 @@ Test._setup = function() {
 	this._imgTgl.setClick(this._clickToggle, this);
 	this._container.addChild(this._imgTgl);
 
-	// create scroll container and add it to container
+	// create scroll-container and add it to container
 	this._scrCont = new ScrollContainer(200, 200);
 	this._scrCont.update(this._dogSprite.width, this._dogSprite.height);
 	this._scrCont.contents.addChild(this._dogSprite);
 	this._scrCont.position.set(20, 500);
 	this._container.addChild(this._scrCont);
+
+	// create text-field and add it to container
+	this._txtFld = new TextField(loader.resources[this._tfImage].texture,
+		500, 50, 'Click and enter text.', true);
+	this._txtFld.position.set(50, 50);
+	this._container.addChild(this._txtFld);
 
 	// set size of background
 	this._bgSprite.width = 1024;
@@ -115,13 +124,5 @@ Test._clickImage = function() {
 Test._clickToggle = function(toggle) {
 	// change visibility of cat sprite
 	this._catSprite.visible = toggle;
-};
-
-//--------------------------------------------------------------------------
-// Drag function of draggable
-//--------------------------------------------------------------------------
-Test._drag = function() {
-	console.log('Drag Position: (' +
-		this._draggable.x + ', ' + this._draggable.y + ')');
 };
 

@@ -647,7 +647,7 @@ ScrollContainer.prototype.resize = function(scrWidth, scrHeight) {
 // Text Button - Button which contains nine patch and text
 //--------------------------------------------------------------------------
 //**************************************************************************
-function TextButton(texture, width, height, text, padding, style, align, offsetY) {
+function TextButton(texture, width, height, text, color, align, padding, offsetY) {
 	// super
 	Button.call(this);
 
@@ -656,12 +656,11 @@ function TextButton(texture, width, height, text, padding, style, align, offsetY
 	this._tbWidth = width;
 	this._tbHeight = height;
 	this._tbText = text || '';
-	this._tbPadding = padding || 10;
-	this._tbStyle = style ||
-		{font : 'bold ' + (this._tbHeight - 2 * this._tbPadding) + 'px sans-serif',
-		fill : 'white'};
 	this._tbAlign = align || 1;
+	this._tbPadding = padding || 10;
 	this._tbOffsetY = offsetY || -0.08;
+	this._tbStyle = {font : 'bold ' + (this._tbHeight - 2 * this._tbPadding)
+		+ 'px sans-serif', fill : color || 'white'};
 
 	// add nine-patch and text-object
 	this._addNinePatch();
@@ -752,6 +751,23 @@ TextButton.prototype.setText = function(text, padding, style, align, offsetY) {
 
 	// update text-object
 	this._updateText();
+};
+
+//--------------------------------------------------------------------------
+// Fit button size to text
+//--------------------------------------------------------------------------
+TextButton.prototype.fit = function() {
+	// aliasing for shorter notation
+	var tbto = this._tbTextObject;
+	var padding = this._tbPadding;
+	var offsetY = this._tbOffsetY;
+
+	// calculate size to fit
+	var fitWidth = tbto.width + 2 * padding;
+	var fitHeight = tbto.height * (1 - offsetY) + 2 * padding;
+
+	// resize to fit
+	this.resize(fitWidth, fitHeight);
 };
 
 
@@ -887,5 +903,141 @@ ImageToggle.prototype.resize = function(width, height) {
 
 	// update image
 	this._updateImage();
+};
+
+
+
+
+
+//**************************************************************************
+//--------------------------------------------------------------------------
+// Text Field - Text button which can input text by using keyboard
+//--------------------------------------------------------------------------
+//**************************************************************************
+function TextField(texture, width, height, text, autofit, type, color, align) {
+	// super
+	TextButton.call(this,
+		texture, width, height, text, color || 'black', align || 0);
+	
+	// set attributes
+	this._tfText = text;
+	this._tfAutofit = autofit || false;
+	this._tfType = type || 'text';
+	this._tfInput = null;
+	this._tfInputFunc = null;
+
+	// add input element and click function
+	this._addInput();
+	this._addClick();
+	
+	// check if auto-fit is needed
+	if(this._tfAutofit)
+		this.fit(); // auto-fit
+}
+
+// extends TextButton
+TextField.prototype = Object.create(TextButton.prototype);
+TextField.prototype.constructor = TextField;
+
+//--------------------------------------------------------------------------
+// Add input element
+//--------------------------------------------------------------------------
+TextField.prototype._addInput = function() {
+	// create input element
+	this._tfInput = document.createElement('input');
+
+	// set input element attributes
+	this._tfInput.type = this._tfType;
+	this._tfInput.style.opacity = 0;
+	this._tfInput.onkeyup = this._updateInput.bind(this);
+	this._tfInput.onkeydown = this._updateInput.bind(this);
+	this._tfInput.onkeypress = this._updateInput.bind(this);
+
+	// add input element to body of document
+	document.body.appendChild(this._tfInput);
+};
+
+//--------------------------------------------------------------------------
+// Add click function
+//--------------------------------------------------------------------------
+TextField.prototype._addClick = function() {
+	// set empty click function
+	this.setClick(function() {}, this);
+};
+
+//--------------------------------------------------------------------------
+// Remove input element
+//--------------------------------------------------------------------------
+TextField.prototype._removeInput = function() {
+	// remove input element from body of document
+	document.body.removeChild(this._tfInput);
+
+	// set input element to null
+	this._tfInput = null;
+};
+
+//--------------------------------------------------------------------------
+// Update input event
+//--------------------------------------------------------------------------
+TextField.prototype._updateInput = function(event) {
+	// reset text from input element value
+	this._tfText = this._tfInput.value;
+	this.setText(this._tfText);
+
+	// check if auto-fit is needed
+	if (this._tfAutofit)
+		this.fit(); // auto-fit
+
+	// check if custom input function exists
+	if (this._tfInputFunc)
+		this._tfInputFunc(); // call custom input function
+
+	// check if key is enter
+	if (event.keyCode == 13)
+		this._removeInput(); // remove input
+};
+
+//--------------------------------------------------------------------------
+// Set focus
+//--------------------------------------------------------------------------
+TextField.prototype._setFocus = function() {
+	// set focus to input element
+	this._tfInput.focus();
+
+	// set cursor to end of input text
+	this._tfInput.value = '';
+	this._tfInput.value = this._tfText;
+};
+
+//--------------------------------------------------------------------------
+// Set click function
+//--------------------------------------------------------------------------
+TextField.prototype.setClick = function(func, context) {
+	// create click function
+	var clickFunc = function() {
+		if (!this._tfInput)
+			this._addInput();
+		this._setFocus();
+		func.call(context);
+	};
+
+	// set click function
+	this.on('click', clickFunc).on('tap', clickFunc);
+};
+
+//--------------------------------------------------------------------------
+// Set input function
+//--------------------------------------------------------------------------
+TextField.prototype.setInput = function(func, context) {
+	// create and set custom input function
+	this._tfInputFunc = func.bind(context);
+};
+
+//--------------------------------------------------------------------------
+// Get text
+//--------------------------------------------------------------------------
+TextField.prototype.getText = function() {
+	// return text value
+	return this._tfText;
 };
 
