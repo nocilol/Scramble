@@ -115,6 +115,126 @@ Alterator.prototype.clear = function() {
 
 //**************************************************************************
 //--------------------------------------------------------------------------
+// Stacker - Container which can stack object in one direction
+//--------------------------------------------------------------------------
+//**************************************************************************
+function Stacker(orient) {
+	// super
+	Container.call(this);
+
+	// set orientation
+	// - 'vert' means vertical, 'horz' means horizontal
+	this._orient = orient || 'vert';
+
+	// set stack
+	this._stack = [];
+}
+
+// extends Container
+Stacker.prototype = Object.create(Container.prototype);
+Stacker.prototype.constructor = Stacker;
+
+//--------------------------------------------------------------------------
+// Add object
+//--------------------------------------------------------------------------
+Stacker.prototype.add = function(object, index) {
+	// add object into stack
+	this._stack.splice(index || this.size(), 0, object);
+
+	// add object to this(container)
+	this.addChild(object);
+
+	// update stacker
+	this.update();
+};
+
+//--------------------------------------------------------------------------
+// Remove Object
+//--------------------------------------------------------------------------
+Stacker.prototype.remove = function(index) {
+	// get object to remove
+	var remObj = this.get(index);
+
+	// remove object from stack
+	this._stack.splice(index, 1);
+
+	// remove object from this(container)
+	this.removeChild(remObj);
+
+	// update stacker
+	this.update();
+};
+
+//--------------------------------------------------------------------------
+// Update
+//--------------------------------------------------------------------------
+Stacker.prototype.update = function() {
+	// loop all object in stack
+	var i, object;
+	for (i = 0; i < this.size(); i++) {
+		// get object
+		object = this.get(i);
+
+		// check orientation
+		if (this._orient == 'vert') {
+			// vertical
+			object.x = 0;
+			object.y = this.pos(i - 1);
+		} else {
+			// horizontal
+			object.x = this.pos(i - 1);
+			object.y = 0;
+		}
+	}
+};
+
+//--------------------------------------------------------------------------
+// Get number of objects
+//--------------------------------------------------------------------------
+Stacker.prototype.size = function() {
+	// return size(length) of stack
+	return this._stack.length;
+};
+
+//--------------------------------------------------------------------------
+// Get position
+//--------------------------------------------------------------------------
+Stacker.prototype.pos = function(index) {
+	// check if index is negative
+	if (index < 0)
+		return 0; // return 0
+
+	// initialize result of sum value to 0
+	var result = 0;
+
+	// loop from 0 to index
+	var i;
+	for (i = 0; i <= index; i++) {
+		// check orientation
+		if (this._orient == 'vert')
+			result += this.get(index).height; // vertical - sum height
+		else
+			result += this.get(index).width; // horizontal - sum width
+	}
+
+	// return result
+	return result;
+};
+
+//--------------------------------------------------------------------------
+// Get object by using index
+//--------------------------------------------------------------------------
+Stacker.prototype.get = function(index) {
+	// return object from stack
+	return this._stack[index];
+};
+
+
+
+
+
+//**************************************************************************
+//--------------------------------------------------------------------------
 // Nine Patch - Container which can display nine patch texture
 //--------------------------------------------------------------------------
 //**************************************************************************
