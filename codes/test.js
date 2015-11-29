@@ -17,6 +17,7 @@ Test.call = function() {
 	this._dogImage = 'images/Dog.png';
 	this._npImage = 'ui/red_button08.png';
 	this._tfImage = 'ui/red_button03.png';
+	this._clImage = 'ui/grey_button11.png';
 	this._onImage = 'ui/red_boxCheckmark.png';
 	this._offImage = 'ui/grey_box.png';
 
@@ -29,7 +30,8 @@ Test.call = function() {
 	// load images and setup test
 	var setupFunc = this._setup.bind(this);
 	loader.add([this._bgImage, this._catImage, this._dogImage,
-		this._npImage, this._tfImage, this._onImage, this._offImage])
+		this._npImage, this._tfImage, this._clImage,
+		this._onImage, this._offImage])
 	.load(setupFunc);
 };
 
@@ -81,6 +83,13 @@ Test._setup = function() {
 		500, 50, 'Click and enter text.', true);
 	this._txtFld.position.set(50, 50);
 	this._container.addChild(this._txtFld);
+
+	// create choice-list and add it to container
+	this._choList = new ChoiceList(loader.resources[this._npImage].texture,
+		loader.resources[this._clImage].texture, 150, 50,
+		['Hell', 'Oh', 'World']);
+	this._choList.position.set(850, 300);
+	this._container.addChild(this._choList);
 
 	// set size of background
 	this._bgSprite.width = 1024;

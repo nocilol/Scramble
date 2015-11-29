@@ -1141,8 +1141,8 @@ TextField.prototype.setClick = function(func, context) {
 		func.call(context);
 	};
 
-	// set click function
-	this.on('click', clickFunc).on('tap', clickFunc);
+	// super
+	TextButton.prototype.setClick.call(this, clickFunc, this);
 };
 
 //--------------------------------------------------------------------------
@@ -1159,5 +1159,169 @@ TextField.prototype.setInput = function(func, context) {
 TextField.prototype.getText = function() {
 	// return text value
 	return this._tfText;
+};
+
+
+
+
+
+//**************************************************************************
+//--------------------------------------------------------------------------
+// Choice List - Text button which can choose item in choice list
+//--------------------------------------------------------------------------
+//**************************************************************************
+function ChoiceList(texBtn, texCon, width, height, list, color, index, padding) {
+	// super
+	TextButton.call(this,
+		texBtn, width, height, index ? list[index] : list[0]);
+	
+	// set attributes
+	this._clTexBtn = texBtn;
+	this._clTexCon = texCon;
+	this._clWidth = width;
+	this._clHeight = height;
+	this._clList = list;
+	this._clColor = color || 'black';
+	this._clIndex = index || 0;
+	this._clPadding = padding || 10;
+	this._clChoiceFunc = null;
+
+	// add choice list and click function
+	this._addChoice();
+	this._addClick();
+
+	// update choice list
+	this._updateChoice();
+}
+
+// extends TextButton
+ChoiceList.prototype = Object.create(TextButton.prototype);
+ChoiceList.prototype.constructor = ChoiceList;
+
+//--------------------------------------------------------------------------
+// Add choice list
+//--------------------------------------------------------------------------
+ChoiceList.prototype._addChoice = function() {
+	// style of choice list text
+	var style = {font : (this._clHeight - 20) + 'px sans-serif',
+		fill : this._clColor};
+
+	// create stacker for add choices (foreground of choice list)
+	this._clChoiceFore = new Stacker();
+
+	// create choices and add then to stacker(foreground)
+	var i; // loop for each list item
+	for (i = 0; i < this._clList.length; i++) {
+		// create text and button object
+		var text = new Text(this._clList[i], style);
+		var btn = new Button();
+
+		// create click function
+		var clickFunc = function(index) {
+			// reset index
+			this._clIndex = index;
+
+			// reset text to selected item
+			console.log(this._clList);
+			this.setText(this._clList[index]);
+
+			// check if custom choice function exists
+			if (this._clChoiceFunc)
+				this._clChoiceFunc(); // call custom choice function
+		};
+
+		// add text to button
+		btn.addChild(text);
+
+		// set click function of button
+		btn.setClick(clickFunc.bind(this, i), this);
+
+		// add choice item to foreground of choice list
+		this._clChoiceFore.add(btn);
+	}
+
+	// create background of choice list by nine-patch
+	this._clChoiceBack = new NinePatch(
+		this._clTexCon, this._clWidth, this._clHeight);
+
+	// add stacker(foreground) into nine-patch(background)
+	this._clChoiceBack.addChild(this._clChoiceFore);
+
+	// set choice list to be invisible
+	this._clChoiceBack.visible = false;
+
+	// add choice list in this(text-button)
+	this.addChild(this._clChoiceBack);
+};
+
+//--------------------------------------------------------------------------
+// Update choice list
+//--------------------------------------------------------------------------
+ChoiceList.prototype._updateChoice = function() {
+	// resize background
+	this._clChoiceBack.resize(this._clWidth,
+		this._clChoiceFore.height + 2 * this._clPadding);
+	
+	// reset position of background
+	this._clChoiceBack.position.set(0, this._clHeight);
+
+	// reset position of foreground
+	this._clChoiceFore.position.set(this._clPadding, this._clPadding);
+};
+
+//--------------------------------------------------------------------------
+// Add click function
+//--------------------------------------------------------------------------
+ChoiceList.prototype._addClick = function() {
+	// set empty click function
+	this.setClick(function() {}, this);
+};
+
+//--------------------------------------------------------------------------
+// Resize button and choice list
+//--------------------------------------------------------------------------
+ChoiceList.prototype.resize = function(width, height) {
+	// super
+	TextButton.prototype.resize.call(this, width, height);
+
+	// reset size
+	this._clWidth = width;
+	this._clHeight = height;
+
+	// update choice list
+	this._updateChoice();
+};
+
+//--------------------------------------------------------------------------
+// Set click function
+//--------------------------------------------------------------------------
+ChoiceList.prototype.setClick = function(func, context) {
+	// create click function
+	var clickFunc = function() {
+		// change visibility of choice list
+		this._clChoiceBack.visible = !this._clChoiceBack.visible;
+
+		// custom function
+		func.call(context);
+	};
+
+	// super
+	TextButton.prototype.setClick.call(this, clickFunc, this);
+};
+
+//--------------------------------------------------------------------------
+// Set custom choice function
+//--------------------------------------------------------------------------
+ChoiceList.prototype.setChoice = function(func, context) {
+	// create and set choice function
+	this._clChoiceFunc = func.bind(context);
+};
+
+//--------------------------------------------------------------------------
+// Get index of selected item
+//--------------------------------------------------------------------------
+ChoiceList.prototype.getIndex = function() {
+	// return choice index
+	return this._clIndex;
 };
 
