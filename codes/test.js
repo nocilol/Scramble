@@ -43,16 +43,12 @@ Test._setup = function() {
 	this._container.addChild(this._bgSprite);
 	this._container.addChild(this._catSprite);
 
-	// create nine-patch
-	this._ninePatch = new NinePatch(
-		loader.resources[this._npImage].texture, 300, 200);
-
-	// create toggle and add it to container
-	this._toggle = new Toggle(false);
-	this._toggle.addChild(this._ninePatch);
-	this._toggle.position.set(700, 10);
-	this._toggle.setClick(this._click, this);
-	this._container.addChild(this._toggle);
+	// create text-button
+	this._textBtn = new TextButton(
+		loader.resources[this._npImage].texture, 250, 50, 'Hello World !');
+	this._textBtn.position.set(750, 20)
+	this._textBtn.setClick(this._click, this);
+	this._container.addChild(this._textBtn);
 
 	// create scroll container and add it to container
 	this._scrCont = new ScrollContainer(200, 200);
@@ -84,10 +80,9 @@ Test._animate = function() {
 //--------------------------------------------------------------------------
 // Click function of toggle
 //--------------------------------------------------------------------------
-Test._click = function(toggle) {
+Test._click = function() {
 	// reset position of cat sprite
-	var resetPos = toggle ? 0 : 200;
-	this._catSprite.position.set(resetPos, resetPos);
+	this._catSprite.position.set(0, 0);
 };
 
 //--------------------------------------------------------------------------

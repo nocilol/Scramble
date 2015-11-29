@@ -630,3 +630,119 @@ ScrollContainer.prototype.resize = function(scrWidth, scrHeight) {
 	this._updateScroller();
 };
 
+
+
+
+
+//**************************************************************************
+//--------------------------------------------------------------------------
+// Nine Patch Text Button - Button which contains nine patch and text
+//--------------------------------------------------------------------------
+//**************************************************************************
+function TextButton(texture, width, height, text, padding, style, align, offsetY) {
+	// super
+	Button.call(this);
+
+	// set attributes
+	this._tbTexture = texture;
+	this._tbWidth = width;
+	this._tbHeight = height;
+	this._tbText = text || '';
+	this._tbPadding = padding || 10;
+	this._tbStyle = style ||
+		{font : 'bold ' + (this._tbHeight - 2 * this._tbPadding) + 'px sans-serif',
+		fill : 'white'};
+	this._tbAlign = align || 1;
+	this._tbOffsetY = offsetY || -0.08;
+
+	// add nine-patch and text-object
+	this._addNinePatch();
+	this._addText()
+
+	// update nine-patch and text-object
+	this._updateNinePatch();
+	this._updateText();
+}
+
+// extends Button
+TextButton.prototype = Object.create(Button.prototype);
+TextButton.prototype.constructor = TextButton;
+
+//--------------------------------------------------------------------------
+// Add nine patch
+//--------------------------------------------------------------------------
+TextButton.prototype._addNinePatch = function() {
+	// create nine-patch and add it to this(button)
+	this._tbNinePatch = new NinePatch(this._tbTexture, this._tbWidth, this._tbHeight);
+	this.addChild(this._tbNinePatch);
+};
+
+//--------------------------------------------------------------------------
+// Add text object
+//--------------------------------------------------------------------------
+TextButton.prototype._addText = function() {
+	// create text-object and add it to this(button)
+	this._tbTextObject = new Text(this._tbText, this._tbStyle);
+	this.addChild(this._tbTextObject);
+};
+
+//--------------------------------------------------------------------------
+// Update nine patch
+//--------------------------------------------------------------------------
+TextButton.prototype._updateNinePatch = function() {
+	// resize nine-patch
+	this._tbNinePatch.resize(this._tbWidth, this._tbHeight);
+};
+
+//--------------------------------------------------------------------------
+// Update text object
+//--------------------------------------------------------------------------
+TextButton.prototype._updateText = function() {
+	// aliasing for shorter notation
+	var tbto = this._tbTextObject;
+
+	// reset test and style
+	tbto.text = this._tbText;
+	tbto.style = this._tbStyle;
+
+	// reset x position
+	if (this._tbAlign == 0)
+		tbto.x = this._tbPadding;
+	else if (this._tbAlign == 1)
+		tbto.x = (this._tbWidth - tbto.width) / 2;
+	else
+		tbto.x = (this._tbWidth - tbto.width) - this._tbPadding;
+
+	// reset y position
+	tbto.y = (this._tbHeight - tbto.height +
+		this._tbHeight * this._tbOffsetY) / 2;
+};
+
+//--------------------------------------------------------------------------
+// Resize button
+//--------------------------------------------------------------------------
+TextButton.prototype.resize = function(width, height) {
+	// reset size
+	this._tbWidth = width;
+	this._tbHeight = height;
+
+	// update nine-patch and text-object
+	this._updateNinePatch();
+	this._updateText();
+};
+
+//--------------------------------------------------------------------------
+// Set text
+//--------------------------------------------------------------------------
+TextButton.prototype.setText = function(text, padding, style, align, offsetY) {
+	// reset attributes of text
+	this._tbText = text;
+	this._tbPadding = padding || this._tbPadding;
+	this._tbStyle = style || this._tbStyle;
+	this._tbAlign = align || this._tbAlign;
+	this._tbOffsetY = offsetY || this._tbOffsetY;
+
+	// update text-object
+	this._updateText();
+};
+
