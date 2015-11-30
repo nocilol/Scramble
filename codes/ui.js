@@ -118,13 +118,20 @@ Alterator.prototype.clear = function() {
 // Stacker - Container which can stack object in one direction
 //--------------------------------------------------------------------------
 //**************************************************************************
-function Stacker(orient) {
+function Stacker(orient, align, gap) {
 	// super
 	Container.call(this);
 
 	// set orientation
 	// - 'vert' means vertical, 'horz' means horizontal
 	this._orient = orient || 'vert';
+
+	// set alignment
+	// - vert/horz: left/up(0), center/center(1), right/down(2)
+	this._align = align || 0;
+
+	// set gap between objects
+	this._gap = gap || 0;
 
 	// set stack
 	this._stack = [];
@@ -169,6 +176,9 @@ Stacker.prototype.remove = function(index) {
 // Update
 //--------------------------------------------------------------------------
 Stacker.prototype.update = function() {
+	// length of stacker
+	var leng = this.len();
+
 	// loop all object in stack
 	var i, object;
 	for (i = 0; i < this.size(); i++) {
@@ -178,12 +188,22 @@ Stacker.prototype.update = function() {
 		// check orientation
 		if (this._orient == 'vert') {
 			// vertical
-			object.x = 0;
+			if (this._align == 0)
+				object.x = 0;
+			else if (this._align == 1)
+				object.x = (leng - object.width) / 2;
+			else
+				object.x = leng - object.width;
 			object.y = this.pos(i - 1);
 		} else {
 			// horizontal
 			object.x = this.pos(i - 1);
-			object.y = 0;
+			if (this._align == 0)
+				object.y = 0;
+			else if (this._align == 1)
+				object.y = (leng - object.height) / 2;
+			else
+				object.y = leng - object.height;
 		}
 	}
 };
@@ -212,9 +232,32 @@ Stacker.prototype.pos = function(index) {
 	for (i = 0; i <= index; i++) {
 		// check orientation
 		if (this._orient == 'vert')
-			result += this.get(index).height; // vertical - sum height
+			result += this.get(i).height + this._gap; // vertical - sum height
 		else
-			result += this.get(index).width; // horizontal - sum width
+			result += this.get(i).width + this._gap; // horizontal - sum width
+	}
+
+	// return result
+	return result;
+};
+
+//--------------------------------------------------------------------------
+// Get length
+//--------------------------------------------------------------------------
+Stacker.prototype.len = function() {
+	// initialize result of max value to 0
+	var result = 0;
+
+	// loop from 0 to size - 1
+	var i;
+	for (i = 0; i < this.size(); i++) {
+		// check orientation
+		if (this._orient == 'vert')
+			if (result < this.get(i).width)
+				result = this.get(i).width; // vertical - max width
+		else
+			if (result < this.get(i).height)
+				result = this.get(i).height; // horizontal - max height
 	}
 
 	// return result
@@ -227,6 +270,57 @@ Stacker.prototype.pos = function(index) {
 Stacker.prototype.get = function(index) {
 	// return object from stack
 	return this._stack[index];
+};
+
+
+
+
+
+//**************************************************************************
+//--------------------------------------------------------------------------
+// Rectangle Area - Graphics which draws rectangle
+//--------------------------------------------------------------------------
+//**************************************************************************
+function RectArea(width, height) {
+	// super
+	Graphics.call(this);
+
+	// set alpha value to 0
+	this.alpha = 0.001;
+
+	// set attributes
+	this._raWidth = width;
+	this._raHeight = height;
+
+	// update
+	this._update();
+}
+
+// extends Graphics
+RectArea.prototype = Object.create(Graphics.prototype);
+RectArea.prototype.constructor = RectArea;
+
+//--------------------------------------------------------------------------
+// Update
+//--------------------------------------------------------------------------
+RectArea.prototype._update = function() {
+	// clear
+	this.clear();
+
+	// re-draw rectangle
+	this.beginFill();
+	this.drawRect(0, 0, this._raWidth, this._raHeight);
+	this.endFill();
+};
+
+//--------------------------------------------------------------------------
+// Resize
+//--------------------------------------------------------------------------
+RectArea.prototype.resize = function(width, height) {
+	this._raWidth = width;
+	this._raHeight = height;
+
+	this._update();
 };
 
 
@@ -1196,10 +1290,10 @@ TextField.prototype.getText = function() {
 // Choice List - Text button which can choose item in choice list
 //--------------------------------------------------------------------------
 //**************************************************************************
-function ChoiceList(texBtn, texCon, width, height, list, color, index, padding) {
+function ChoiceList(texBtn, texCon, width, height, list, index, autofit, color, padding) {
 	// super
 	TextButton.call(this,
-		texBtn, width, height, index ? list[index] : list[0]);
+		texBtn, width, height, list[index || 0]);
 	
 	// set attributes
 	this._clTexBtn = texBtn;
@@ -1207,8 +1301,9 @@ function ChoiceList(texBtn, texCon, width, height, list, color, index, padding) 
 	this._clWidth = width;
 	this._clHeight = height;
 	this._clList = list;
-	this._clColor = color || 'black';
 	this._clIndex = index || 0;
+	this._clAutofit = autofit || false;
+	this._clColor = color || 'black';
 	this._clPadding = padding || 10;
 	this._clChoiceFunc = null;
 
@@ -1248,12 +1343,15 @@ ChoiceList.prototype._addChoice = function() {
 			this._clIndex = index;
 
 			// reset text to selected item
-			console.log(this._clList);
 			this.setText(this._clList[index]);
+
+			// check if auto-fit is needed
+			if(this._clAutofit)
+				this.fit(); // auto-fit
 
 			// check if custom choice function exists
 			if (this._clChoiceFunc)
-				this._clChoiceFunc(); // call custom choice function
+				this._clChoiceFunc(this._clIndex); // call custom choice function
 		};
 
 		// add text to button
@@ -1341,6 +1439,21 @@ ChoiceList.prototype.setClick = function(func, context) {
 ChoiceList.prototype.setChoice = function(func, context) {
 	// create and set choice function
 	this._clChoiceFunc = func.bind(context);
+};
+
+//--------------------------------------------------------------------------
+// Set index of selected item
+//--------------------------------------------------------------------------
+ChoiceList.prototype.setIndex = function(index) {
+	// reset index
+	this._clIndex = index;
+
+	// reset text to selected item
+	this.setText(this._clList[index]);
+
+	// check if auto-fit is needed
+	if(this._clAutofit)
+		this.fit(); // auto-fit
 };
 
 //--------------------------------------------------------------------------

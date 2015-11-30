@@ -1,8 +1,8 @@
 
 //**************************************************************************
-// Test - Test
+// UiTest - UiTest
 //**************************************************************************
-function Test() {
+function UiTest() {
 	// static class
 	throw new Error('This is a static class');
 }
@@ -10,14 +10,14 @@ function Test() {
 //--------------------------------------------------------------------------
 // Call test
 //--------------------------------------------------------------------------
-Test.call = function() {
+UiTest.call = function() {
 	// image lists
 	this._bgImage = 'images/Background.png';
 	this._catImage = 'images/Cat.png';
 	this._dogImage = 'images/Dog.png';
 	this._npImage = 'ui/red_button08.png';
 	this._tfImage = 'ui/red_button03.png';
-	this._clImage = 'ui/grey_button11.png';
+	this._clImage = 'ui/grey_panel.png';
 	this._onImage = 'ui/red_boxCheckmark.png';
 	this._offImage = 'ui/grey_box.png';
 
@@ -38,7 +38,7 @@ Test.call = function() {
 //--------------------------------------------------------------------------
 // Setup test
 //--------------------------------------------------------------------------
-Test._setup = function() {
+UiTest._setup = function() {
 	// create container and background, cat, dog sprites
 	this._container = new Container();
 	this._bgSprite = new Sprite(loader.resources[this._bgImage].texture);
@@ -105,7 +105,7 @@ Test._setup = function() {
 //--------------------------------------------------------------------------
 // Animate function of test
 //--------------------------------------------------------------------------
-Test._animate = function() {
+UiTest._animate = function() {
 	// move cat sprite by (0.2, 0.1)
 	this._catSprite.x += 0.2;
 	this._catSprite.y += 0.1;
@@ -114,7 +114,7 @@ Test._animate = function() {
 //--------------------------------------------------------------------------
 // Click function of text-button
 //--------------------------------------------------------------------------
-Test._clickText = function() {
+UiTest._clickText = function() {
 	// reset position of cat sprite
 	this._catSprite.position.set(0, 0);
 };
@@ -122,7 +122,7 @@ Test._clickText = function() {
 //--------------------------------------------------------------------------
 // Click function of image-button
 //--------------------------------------------------------------------------
-Test._clickImage = function() {
+UiTest._clickImage = function() {
 	// change visibility of background
 	this._bgSprite.visible = !this._bgSprite.visible;
 };
@@ -130,7 +130,7 @@ Test._clickImage = function() {
 //--------------------------------------------------------------------------
 // Click function of image-toggle
 //--------------------------------------------------------------------------
-Test._clickToggle = function(toggle) {
+UiTest._clickToggle = function(toggle) {
 	// change visibility of cat sprite
 	this._catSprite.visible = toggle;
 };
