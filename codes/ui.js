@@ -252,12 +252,14 @@ Stacker.prototype.len = function() {
 	var i;
 	for (i = 0; i < this.size(); i++) {
 		// check orientation
-		if (this._orient == 'vert')
-			if (result < this.get(i).width)
-				result = this.get(i).width; // vertical - max width
-		else
-			if (result < this.get(i).height)
-				result = this.get(i).height; // horizontal - max height
+		var object = this.get(i);
+		if (this._orient == 'vert') {
+			if (result < object.width)
+				result = object.width; // vertical - max width
+		} else {
+			if (result < object.height)
+				result = object.height; // horizontal - max height
+		}
 	}
 
 	// return result
@@ -887,7 +889,7 @@ ScrollContainer.prototype.resize = function(scrWidth, scrHeight) {
 // Text Button - Button which contains nine patch and text
 //--------------------------------------------------------------------------
 //**************************************************************************
-function TextButton(texture, width, height, text, color, align, padding, offsetY) {
+function TextButton(texture, width, height, text, style, align, padding, offsetY) {
 	// super
 	Button.call(this);
 
@@ -899,8 +901,8 @@ function TextButton(texture, width, height, text, color, align, padding, offsetY
 	this._tbAlign = align || 1;
 	this._tbPadding = padding || 10;
 	this._tbOffsetY = offsetY || -0.08;
-	this._tbStyle = {font : 'bold ' + (this._tbHeight - 2 * this._tbPadding)
-		+ 'px sans-serif', fill : color || 'white'};
+	this._tbStyle = style || {font : 'bold ' + (this._tbHeight - 2 * this._tbPadding)
+		+ 'px sans-serif', fill : 'white', stroke : 'black', strokeThickness : 2};
 
 	// add nine-patch and text-object
 	this._addNinePatch();
@@ -1154,10 +1156,12 @@ ImageToggle.prototype.resize = function(width, height) {
 // Text Field - Text button which can input text by using keyboard
 //--------------------------------------------------------------------------
 //**************************************************************************
-function TextField(texture, width, height, text, autofit, type, color, align) {
+function TextField(texture, width, height, text, autofit, type, style, align) {
 	// super
+	var defaultStyle = {font : 'bold ' + (height - 2 * 10)
+		+ 'px sans-serif', fill : 'black', strokeThickness : 0};
 	TextButton.call(this,
-		texture, width, height, text, color || 'black', align || 0);
+		texture, width, height, text, style || defaultStyle, align || 0);
 	
 	// set attributes
 	this._tfText = text;
@@ -1230,7 +1234,7 @@ TextField.prototype._updateInput = function(event) {
 
 	// check if custom input function exists
 	if (this._tfInputFunc)
-		this._tfInputFunc(); // call custom input function
+		this._tfInputFunc(this._tfText); // call custom input function
 
 	// check if key is enter
 	if (event.keyCode == 13)
@@ -1290,7 +1294,7 @@ TextField.prototype.getText = function() {
 // Choice List - Text button which can choose item in choice list
 //--------------------------------------------------------------------------
 //**************************************************************************
-function ChoiceList(texBtn, texCon, width, height, list, index, autofit, color, padding) {
+function ChoiceList(texBtn, texCon, width, height, list, index, autofit, style, padding) {
 	// super
 	TextButton.call(this,
 		texBtn, width, height, list[index || 0]);
@@ -1303,7 +1307,8 @@ function ChoiceList(texBtn, texCon, width, height, list, index, autofit, color, 
 	this._clList = list;
 	this._clIndex = index || 0;
 	this._clAutofit = autofit || false;
-	this._clColor = color || 'black';
+	this._clStyle = style || {font : 'bold ' + (this._clHeight - 20)
+		+ 'px sans-serif', fill : 'black'};
 	this._clPadding = padding || 10;
 	this._clChoiceFunc = null;
 
@@ -1323,10 +1328,6 @@ ChoiceList.prototype.constructor = ChoiceList;
 // Add choice list
 //--------------------------------------------------------------------------
 ChoiceList.prototype._addChoice = function() {
-	// style of choice list text
-	var style = {font : (this._clHeight - 20) + 'px sans-serif',
-		fill : this._clColor};
-
 	// create stacker for add choices (foreground of choice list)
 	this._clChoiceFore = new Stacker();
 
@@ -1334,7 +1335,7 @@ ChoiceList.prototype._addChoice = function() {
 	var i; // loop for each list item
 	for (i = 0; i < this._clList.length; i++) {
 		// create text and button object
-		var text = new Text(this._clList[i], style);
+		var text = new Text(this._clList[i], this._clStyle);
 		var btn = new Button();
 
 		// create click function

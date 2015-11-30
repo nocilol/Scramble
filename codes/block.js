@@ -11,32 +11,53 @@ function InstrBlock() {
 	// set attributes -- just for testing
 	this._elements = [
 		[
-			{type : 'textArea', params : ['greet', 'How are you ?']},
-			{type : 'checkBox', params : ['greet2', 'Hello']}
+			{type : 'text', params : ['greet', 'How are you ?']},
+			{type : 'check', params : ['greet2', 'Hello']}
 		],
-		{type : 'textArea', params : ['fuck', 'What the hell']},
-		{type : 'choList', params : ['start', ['Hell', 'Oh', 'World'], 1]},
-		{type : 'checkBox', params : ['fuck2', 'World', true]}
+		{type : 'text', params : ['fuck', 'What the hell']},
+		{type : 'input', params : ['sentence', 'My name is ...']},
+		{type : 'choice', params : ['start', ['Hell', 'Oh', 'World'], 1]},
+		{type : 'check', params : ['fuck2', 'World', true]}
 	];
 	this._properties = {};
+	this._stackers = [];
 	this._contents = null;
 
 	this._elemSize = 20;
 	this._padding = 10;
 	this._innerGap = 4;
 	this._outerGap = 8;
-	this._offsetY = -1.5;
+	this._offsetY = -0.15;
 
-	this._style = {font : 'bold ' + this._elemSize + 'px sans-serif', fill : 'white'};
+	this._style = {font : 'bold ' + this._elemSize + 'px sans-serif',
+		fill : 'white', stroke : 'black', strokeThickness : 2};
 
-	this._contents = this._getContents(this._elements.slice(0), 'vert');
-
-	this.addChild(this._contents);
+	this._addContents();
+	this._addBackground();
 }
 
 // extends Container
 InstrBlock.prototype = Object.create(Container.prototype);
 InstrBlock.prototype.constructor = InstrBlock;
+
+InstrBlock.prototype._addContents = function() {
+	// get(create) contents recursively
+	this._contents = this._getContents(this._elements.slice(0), 'vert');
+
+	// set position of contents
+	this._contents.position.set(this._padding, this._padding);
+};
+
+InstrBlock.prototype._addBackground = function() {
+	// create background by using nine-patch
+	this._background = new NinePatch(ImageManager.button,
+		this._contents.width + 2 * this._padding,
+		this._contents.height * (1 - this._offsetY) + 2 * this._padding);
+	
+	// add background and contents to this(container)
+	this.addChild(this._background);
+	this.addChild(this._contents);
+};
 
 //--------------------------------------------------------------------------
 // Get contents
@@ -61,6 +82,9 @@ InstrBlock.prototype._getContents = function(elements, orient) {
 			stacker.add(content);
 		};
 
+		// add stacker into list
+		this._stackers.push(stacker);
+
 		// return stacker
 		return stacker;
 	} else {
@@ -72,7 +96,7 @@ InstrBlock.prototype._getContents = function(elements, orient) {
 //--------------------------------------------------------------------------
 // Return text UI
 //--------------------------------------------------------------------------
-InstrBlock.prototype._textArea = function(id, value) {
+InstrBlock.prototype._text = function(id, value) {
 	// create ui
 	var base = new Stacker('horz', 1, this._innerGap);
 	var text = new Text(value, this._style);
@@ -87,7 +111,7 @@ InstrBlock.prototype._textArea = function(id, value) {
 //--------------------------------------------------------------------------
 // Return check box UI
 //--------------------------------------------------------------------------
-InstrBlock.prototype._checkBox = function(id, value, toggle) {
+InstrBlock.prototype._check = function(id, value, toggle) {
 	// create ui
 	var base = new Stacker('horz', 1, this._innerGap);
 	var checkBox = new ImageToggle(
@@ -112,7 +136,7 @@ InstrBlock.prototype._checkBox = function(id, value, toggle) {
 //--------------------------------------------------------------------------
 // Return choice list UI
 //--------------------------------------------------------------------------
-InstrBlock.prototype._choList = function(id, values, index) {
+InstrBlock.prototype._choice = function(id, values, index) {
 	// find item which has maximum length
 	var maxL = 0;
 	var maxI = 0;
@@ -134,7 +158,6 @@ InstrBlock.prototype._choList = function(id, values, index) {
 
 	// construct ui
 	base.add(choice);
-	choice.y += this._padding;
 
 	// set ui
 	this._properties[id] = values[index || 0];
@@ -144,5 +167,39 @@ InstrBlock.prototype._choList = function(id, values, index) {
 
 	// return ui
 	return base;
+};
+
+//--------------------------------------------------------------------------
+// Return text field of UI
+//--------------------------------------------------------------------------
+InstrBlock.prototype._input = function(id, value) {
+	// create ui
+	var base = new Stacker('horz', 1, this._innerGap);
+	var txtFld = new TextField(ImageManager.textField,
+		100, this._elemSize + 2 * this._padding, value || '', true);
+	
+	// construct ui
+	base.add(txtFld);
+
+	// set ui
+	this._properties[id] = value || '';
+	txtFld.setInput((function(id, text) {
+		this._properties[id] = text;
+		this._update();
+	}).bind(this, id), this);
+
+	// return ui
+	return base;
+};
+
+InstrBlock.prototype._update = function() {
+	// loop for each stacker
+	var i;
+	for (i = 0; i < this._stackers.length; i++)
+		this._stackers[i].update(); // update stacker
+
+	// resize background
+	this._background.resize(this._contents.width + 2 * this._padding,
+		this._contents.height * (1 - this._offsetY) + 2 * this._padding);
 };
 
