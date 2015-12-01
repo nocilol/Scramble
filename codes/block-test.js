@@ -10,7 +10,7 @@ BlockTest.call = function() {
 	// add test instruction block to stage and reposit it
 	StageManager.stage.add('test', this._testIb, true);
 	this._testIb.position.set(
-		(1024 - this._testIb.width) / 2, (768 - this._testIb.height) / 2);
+		(1024 * 2 - this._testIb.width) / 2, (768 * 2 - this._testIb.height) / 2);
 
 	// set animate function
 	StageManager.setAnimate(this._animate, this);

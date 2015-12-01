@@ -140,13 +140,28 @@ ImageManager.list = function() {
 	this._loadList = [];
 	
 	// construct load list
-	this._loadList.push(this._buttonPath = 'ui/red_button08.png');
-	this._loadList.push(this._textFieldPath = 'ui/red_button03.png');
-	this._loadList.push(this._choicePath = 'ui/red_button04.png');
+	this._loadList.push(this._redButtonPath = 'ui/red_button08.png');
+	this._loadList.push(this._blueButtonPath = 'ui/blue_button09.png');
+	this._loadList.push(this._greenButtonPath = 'ui/green_button09.png');
+	this._loadList.push(this._yellowButtonPath = 'ui/yellow_button09.png');
+	this._loadList.push(this._redTextFieldPath = 'ui/red_button03.png');
+	this._loadList.push(this._blueTextFieldPath = 'ui/blue_button06.png');
+	this._loadList.push(this._greenTextFieldPath = 'ui/green_button06.png');
+	this._loadList.push(this._yellowTextFieldPath = 'ui/yellow_button06.png');
+	this._loadList.push(this._redChoicePath = 'ui/red_button04.png');
+	this._loadList.push(this._blueChoicePath = 'ui/blue_button07.png');
+	this._loadList.push(this._greenChoicePath = 'ui/green_button07.png');
+	this._loadList.push(this._yellowChoicePath = 'ui/yellow_button07.png');
 	this._loadList.push(this._listPath = 'ui/grey_button09.png');
-	this._loadList.push(this._checkOnPath = 'ui/red_boxCheckmark.png');
+	this._loadList.push(this._redCheckOnPath = 'ui/red_boxCheckmark.png');
+	this._loadList.push(this._blueCheckOnPath = 'ui/blue_boxCheckmark.png');
+	this._loadList.push(this._greenCheckOnPath = 'ui/green_boxCheckmark.png');
+	this._loadList.push(this._yellowCheckOnPath = 'ui/yellow_boxCheckmark.png');
 	this._loadList.push(this._checkOffPath = 'ui/grey_box.png');
-	this._loadList.push(this._tickOnPath = 'ui/red_boxTick.png');
+	this._loadList.push(this._redTickOnPath = 'ui/red_boxTick.png');
+	this._loadList.push(this._blueTickOnPath = 'ui/blue_boxTick.png');
+	this._loadList.push(this._greenTickOnPath = 'ui/green_boxTick.png');
+	this._loadList.push(this._yellowTickOnPath = 'ui/yellow_boxTick.png');
 	this._loadList.push(this._tickOffPath = 'ui/grey_circle.png');
 };
 
@@ -167,13 +182,53 @@ ImageManager.setup = function() {
 //--------------------------------------------------------------------------
 ImageManager.alias = function() {
 	// alias for shorter notation
-	this.button = loader.resources[this._buttonPath].texture;
-	this.textField = loader.resources[this._textFieldPath].texture;
-	this.choice = loader.resources[this._choicePath].texture;
-	this.list = loader.resources[this._listPath].texture;
-	this.checkOn = loader.resources[this._checkOnPath].texture;
-	this.checkOff = loader.resources[this._checkOffPath].texture;
-	this.tickOn = loader.resources[this._tickOnPath].texture;
-	this.tickOff = loader.resources[this._tickOffPath].texture;
+	this.button = {
+		red : loader.resources[this._redButtonPath].texture,
+		blue : loader.resources[this._blueButtonPath].texture,
+		green : loader.resources[this._greenButtonPath].texture,
+		yellow : loader.resources[this._yellowButtonPath].texture
+	};
+	this.textField = {
+		red : loader.resources[this._redTextFieldPath].texture,
+		blue : loader.resources[this._blueTextFieldPath].texture,
+		green : loader.resources[this._greenTextFieldPath].texture,
+		yellow : loader.resources[this._yellowTextFieldPath].texture
+	};
+	this.choice = {
+		red : loader.resources[this._redChoicePath].texture,
+		blue : loader.resources[this._blueChoicePath].texture,
+		green : loader.resources[this._greenChoicePath].texture,
+		yellow : loader.resources[this._yellowChoicePath].texture
+	};
+	this.list = {
+		red : loader.resources[this._listPath].texture,
+		blue : loader.resources[this._listPath].texture,
+		green : loader.resources[this._listPath].texture,
+		yellow : loader.resources[this._listPath].texture
+	};
+	this.checkOn = {
+		red : loader.resources[this._redCheckOnPath].texture,
+		blue : loader.resources[this._blueCheckOnPath].texture,
+		green : loader.resources[this._greenCheckOnPath].texture,
+		yellow : loader.resources[this._yellowCheckOnPath].texture
+	};
+	this.checkOff = {
+		red : loader.resources[this._checkOffPath].texture,
+		blue : loader.resources[this._checkOffPath].texture,
+		green : loader.resources[this._checkOffPath].texture,
+		yellow : loader.resources[this._checkOffPath].texture
+	};
+	this.tickOn = {
+		red : loader.resources[this._redTickOnPath].texture,
+		blue : loader.resources[this._blueTickOnPath].texture,
+		green : loader.resources[this._greenTickOnPath].texture,
+		yellow : loader.resources[this._yellowTickOnPath].texture
+	};
+	this.tickOff = {
+		red : loader.resources[this._tickOffPath].texture,
+		blue : loader.resources[this._tickOffPath].texture,
+		green : loader.resources[this._tickOffPath].texture,
+		yellow : loader.resources[this._tickOffPath].texture
+	};
 };
 

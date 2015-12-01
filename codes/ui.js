@@ -1489,14 +1489,14 @@ ChoiceList.prototype.getIndex = function() {
 // Fit
 //--------------------------------------------------------------------------
 ChoiceList.prototype.fit = function() {
-	// find item in list which has maximum length
+	// find item in foreground(stacker) which has maximum width
 	var maxI = 0;
-	var maxL = 0;
+	var maxW = 0;
 	var i;
-	for (i = 0; i < this._clList.length; i++) {
-		if (maxL < this._clList[i].length) {
+	for (i = 0; i < this._clChoiceFore.size(); i++) {
+		if (maxW < this._clChoiceFore.get(i).width) {
 			maxI = i;
-			maxL = this._clList[i].length;
+			maxW = this._clChoiceFore.get(i).width;
 		}
 	}
 

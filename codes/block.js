@@ -4,12 +4,13 @@
 // Block - Container which contains several ui elements
 //--------------------------------------------------------------------------
 //**************************************************************************
-function Block(elements) {
+function Block(elements, color) {
 	// super
 	Container.call(this);
 
 	// set attributes
 	this._elements = elements;
+	this._color = color || 'red';
 	this._properties = {};
 	this._stackers = [];
 	this._texts = [];
@@ -19,7 +20,7 @@ function Block(elements) {
 	this._contents = null;
 
 	// set constants
-	this._elemSize = 20;
+	this._elemSize = 30;
 	this._padding = 10;
 	this._innerGap = 4;
 	this._outerGap = 8;
@@ -44,7 +45,7 @@ Block.prototype.constructor = Block;
 //--------------------------------------------------------------------------
 Block.prototype._addBackground = function() {
 	// create background by using nine-patch
-	this._background = new NinePatch(ImageManager.button,
+	this._background = new NinePatch(ImageManager.button[this._color],
 		2 * this._padding, 2 * this._padding);
 	
 	// add background to this(container)
@@ -122,7 +123,7 @@ Block.prototype._check = function(id, value, toggle) {
 	// create ui
 	var base = new Stacker('horz', 1, this._innerGap);
 	var checkBox = new ImageToggle(
-		ImageManager.checkOn, ImageManager.checkOff,
+		ImageManager.checkOn[this._color], ImageManager.checkOff[this._color],
 		this._elemSize, this._elemSize, toggle || false);
 	var text = new Text(value, this._style);
 	this._checks.push(checkBox);
@@ -148,7 +149,7 @@ Block.prototype._choice = function(id, values, index) {
 	// create ui
 	var base = new Stacker('horz', 1, this._innerGap);
 	var choice = new ChoiceList(
-		ImageManager.choice, ImageManager.list,
+		ImageManager.choice[this._color], ImageManager.list[this._color],
 		100, this._elemSize + 2 * this._padding, values, index || 0, true);
 	this._choices.push(choice);
 
@@ -171,7 +172,7 @@ Block.prototype._choice = function(id, values, index) {
 Block.prototype._input = function(id, value) {
 	// create ui
 	var base = new Stacker('horz', 1, this._innerGap);
-	var txtFld = new TextField(ImageManager.textField,
+	var txtFld = new TextField(ImageManager.textField[this._color],
 		100, this._elemSize + 2 * this._padding, value || '', true);
 	this._inputs.push(txtFld);
 	
@@ -272,23 +273,45 @@ InstrBlock.prototype._setup = function() {
 // Test instruction block
 //--------------------------------------------------------------------------
 InstrBlock.prototype._test = function() {
+	// INPORTANT: JUST KIDDING !!!
+
 	// set elements
 	var elements = [
-		{type : 'text', params : ['', 'Test block :']},
+		{type : 'text', params : ['', 'Write console : ']},
 		[
-			{type : 'check', params : ['check1', 'Check 1', false]},
-			{type : 'check', params : ['check2', 'Check 2', true]}
+			{type : 'check', params : ['check1', 'Ahn Jeonghyeon', true]},
+			{type : 'check', params : ['check2', 'Kwon Mingyu', true]}
 		],
-		{type : 'choice', params : ['list', ['Up', 'Down', 'Left', 'Right', 'Center'], 1]},
-		{type : 'input', params : ['text', 'Click and input text.']}
+		{type : 'choice', params : ['list', ['love', 'like', 'hate', 'play', 'show'], 0]},
+		{type : 'input', params : ['text', 'each other.']}
 	];
 
 	// create block
-	this._block = new Block(elements);
+	this._block = new Block(elements, 'blue');
 
 	// interpret function
 	this._interpretFunc = function() {
-		console.log(this._block.getProp());
+		// get names and the number of us
+		var names;
+		var number;
+		if (this._block.getProp('check1') && this._block.getProp('check2')) {
+			names = 'Ahn Jeonghyeon and Kwon Mingyu'
+			number = 2;
+		} else if (this._block.getProp('check1')) {
+			names = 'Ahn Jeonghyeon'
+			number = 1;
+		} else if (this._block.getProp('check2')) {
+			names = 'Kwon Mingyu'
+			number = 1;
+		} else {
+			names = 'Nobody'
+			number = 0;
+		}
+
+		// print log to console
+		console.log(names,
+			this._block.getProp('list') + (number < 2 ? 's' : ''),
+			this._block.getProp('text'));
 	};
 };
 
