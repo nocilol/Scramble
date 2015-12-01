@@ -288,7 +288,7 @@ function RectArea(width, height) {
 	Graphics.call(this);
 
 	// set alpha value to 0
-	this.alpha = 0.001;
+	this.alpha = 0;
 
 	// set attributes
 	this._raWidth = width;
@@ -343,7 +343,7 @@ function NinePatch(texture, width, height, border) {
 	this._npWidth = width;
 	this._npHeight = height;
 	this._npSprites = {};
-	this._npBorder = border || (Math.min(texture.width, texture.height) / 3);
+	this._npBorder = border || parseInt(Math.min(texture.width, texture.height) / 3);
 	
 	// add sprites
 	this._addSprites();
@@ -364,15 +364,15 @@ NinePatch.prototype.constructor = NinePatch;
 //--------------------------------------------------------------------------
 NinePatch.prototype._addSprites = function() {
 	// create and add sprites to this(container)
-	this.addChild(this._npSprites['u'] = new Sprite(this._npTexture.clone()));
-	this.addChild(this._npSprites['d'] = new Sprite(this._npTexture.clone()));
-	this.addChild(this._npSprites['l'] = new Sprite(this._npTexture.clone()));
-	this.addChild(this._npSprites['r'] = new Sprite(this._npTexture.clone()));
-	this.addChild(this._npSprites['ul'] = new Sprite(this._npTexture.clone()));
-	this.addChild(this._npSprites['ur'] = new Sprite(this._npTexture.clone()));
-	this.addChild(this._npSprites['dl'] = new Sprite(this._npTexture.clone()));
-	this.addChild(this._npSprites['dr'] = new Sprite(this._npTexture.clone()));
-	this.addChild(this._npSprites['c'] = new Sprite(this._npTexture.clone()));
+	this.addChild(this._npSprites['up'] = new Sprite(this._npTexture.clone()));
+	this.addChild(this._npSprites['down'] = new Sprite(this._npTexture.clone()));
+	this.addChild(this._npSprites['left'] = new Sprite(this._npTexture.clone()));
+	this.addChild(this._npSprites['right'] = new Sprite(this._npTexture.clone()));
+	this.addChild(this._npSprites['upperLeft'] = new Sprite(this._npTexture.clone()));
+	this.addChild(this._npSprites['upperRight'] = new Sprite(this._npTexture.clone()));
+	this.addChild(this._npSprites['lowerLeft'] = new Sprite(this._npTexture.clone()));
+	this.addChild(this._npSprites['lowerRight'] = new Sprite(this._npTexture.clone()));
+	this.addChild(this._npSprites['center'] = new Sprite(this._npTexture.clone()));
 };
 
 //--------------------------------------------------------------------------
@@ -385,15 +385,15 @@ NinePatch.prototype._setFrames = function() {
 	var tb = this._npBorder;
 	
 	// create and set frames
-	this._npSprites['u'].texture.frame = new Rectangle(tb, 0, tw - 2 * tb, tb);
-	this._npSprites['d'].texture.frame = new Rectangle(tb, th - tb, tw - 2 * tb, tb);
-	this._npSprites['l'].texture.frame = new Rectangle(0, tb, tb, th - 2 * tb);
-	this._npSprites['r'].texture.frame = new Rectangle(tw - tb, tb, tb, th - 2 * tb);
-	this._npSprites['ul'].texture.frame = new Rectangle(0, 0, tb, tb);
-	this._npSprites['ur'].texture.frame = new Rectangle(tw - tb, 0, tb, tb);
-	this._npSprites['dl'].texture.frame = new Rectangle(0, th - tb, tb, tb);
-	this._npSprites['dr'].texture.frame = new Rectangle(tw - tb, th - tb, tb, tb);
-	this._npSprites['c'].texture.frame = new Rectangle(tb, tb, tw - 2 * tb, th - 2 * tb);
+	this._npSprites['up'].texture.frame = new Rectangle(tb, 0, tw - 2 * tb, tb);
+	this._npSprites['down'].texture.frame = new Rectangle(tb, th - tb, tw - 2 * tb, tb);
+	this._npSprites['left'].texture.frame = new Rectangle(0, tb, tb, th - 2 * tb);
+	this._npSprites['right'].texture.frame = new Rectangle(tw - tb, tb, tb, th - 2 * tb);
+	this._npSprites['upperLeft'].texture.frame = new Rectangle(0, 0, tb, tb);
+	this._npSprites['upperRight'].texture.frame = new Rectangle(tw - tb, 0, tb, tb);
+	this._npSprites['lowerLeft'].texture.frame = new Rectangle(0, th - tb, tb, tb);
+	this._npSprites['lowerRight'].texture.frame = new Rectangle(tw - tb, th - tb, tb, tb);
+	this._npSprites['center'].texture.frame = new Rectangle(tb, tb, tw - 2 * tb, th - 2 * tb);
 };
 
 //--------------------------------------------------------------------------
@@ -407,15 +407,26 @@ NinePatch.prototype._updateSprites = function() {
 	var s; // temporary variable for sprite
 
 	// reset position and size of sprites
-	s = this._npSprites['u']; s.x = b; s.y = 0; s.width = w - 2 * b; s.height = b;
-	s = this._npSprites['d']; s.x = b; s.y = h - b; s.width = w - 2 * b; s.height = b;
-	s = this._npSprites['l']; s.x = 0; s.y = b; s.width = b; s.height = h - 2 * b;
-	s = this._npSprites['r']; s.x = w - b; s.y = b; s.width = b; s.height = h - 2 * b;
-	s = this._npSprites['ul']; s.x = 0; s.y = 0; s.width = b; s.height = b;
-	s = this._npSprites['ur']; s.x = w - b; s.y = 0; s.width = b; s.height = b;
-	s = this._npSprites['dl']; s.x = 0; s.y = h - b; s.width = b; s.height = b;
-	s = this._npSprites['dr']; s.x = w - b; s.y = h - b; s.width = b; s.height = b;
-	s = this._npSprites['c']; s.x = b; s.y = b; s.width = w - 2 * b; s.height = h - 2 * b;
+	// INPORTANT: find some BUG in PIXI,
+	//             sign of scale can be reversed sometimes
+	s = this._npSprites['up']; s.x = b; s.y = 0; s.width = w - 2 * b; s.height = b;
+	if (s.scale.x < 0) s.scale.x *= -1; if (s.scale.y < 0) s.scale.y *= -1;
+	s = this._npSprites['down']; s.x = b; s.y = h - b; s.width = w - 2 * b; s.height = b;
+	if (s.scale.x < 0) s.scale.x *= -1; if (s.scale.y < 0) s.scale.y *= -1;
+	s = this._npSprites['left']; s.x = 0; s.y = b; s.width = b; s.height = h - 2 * b;
+	if (s.scale.x < 0) s.scale.x *= -1; if (s.scale.y < 0) s.scale.y *= -1;
+	s = this._npSprites['right']; s.x = w - b; s.y = b; s.width = b; s.height = h - 2 * b;
+	if (s.scale.x < 0) s.scale.x *= -1; if (s.scale.y < 0) s.scale.y *= -1;
+	s = this._npSprites['upperLeft']; s.x = 0; s.y = 0; s.width = b; s.height = b;
+	if (s.scale.x < 0) s.scale.x *= -1; if (s.scale.y < 0) s.scale.y *= -1;
+	s = this._npSprites['upperRight']; s.x = w - b; s.y = 0; s.width = b; s.height = b;
+	if (s.scale.x < 0) s.scale.x *= -1; if (s.scale.y < 0) s.scale.y *= -1;
+	s = this._npSprites['lowerLeft']; s.x = 0; s.y = h - b; s.width = b; s.height = b;
+	if (s.scale.x < 0) s.scale.x *= -1; if (s.scale.y < 0) s.scale.y *= -1;
+	s = this._npSprites['lowerRight']; s.x = w - b; s.y = h - b; s.width = b; s.height = b;
+	if (s.scale.x < 0) s.scale.x *= -1; if (s.scale.y < 0) s.scale.y *= -1;
+	s = this._npSprites['center']; s.x = b; s.y = b; s.width = w - 2 * b; s.height = h - 2 * b;
+	if (s.scale.x < 0) s.scale.x *= -1; if (s.scale.y < 0) s.scale.y *= -1;
 };
 
 //--------------------------------------------------------------------------
@@ -1285,6 +1296,15 @@ TextField.prototype.getText = function() {
 	return this._tfText;
 };
 
+//--------------------------------------------------------------------------
+// Close input
+//--------------------------------------------------------------------------
+TextField.prototype.close = function() {
+	// check if input exists
+	if(this._tfInput)
+		this._removeInput(); // remove input
+};
+
 
 
 
@@ -1318,6 +1338,10 @@ function ChoiceList(texBtn, texCon, width, height, list, index, autofit, style, 
 
 	// update choice list
 	this._updateChoice();
+
+	// check if auto-fit is needed
+	if(this._clAutofit)
+		this.fit(); // auto-fit
 }
 
 // extends TextButton
@@ -1345,10 +1369,6 @@ ChoiceList.prototype._addChoice = function() {
 
 			// reset text to selected item
 			this.setText(this._clList[index]);
-
-			// check if auto-fit is needed
-			if(this._clAutofit)
-				this.fit(); // auto-fit
 
 			// check if custom choice function exists
 			if (this._clChoiceFunc)
@@ -1463,5 +1483,42 @@ ChoiceList.prototype.setIndex = function(index) {
 ChoiceList.prototype.getIndex = function() {
 	// return choice index
 	return this._clIndex;
+};
+
+//--------------------------------------------------------------------------
+// Fit
+//--------------------------------------------------------------------------
+ChoiceList.prototype.fit = function() {
+	// find item in list which has maximum length
+	var maxI = 0;
+	var maxL = 0;
+	var i;
+	for (i = 0; i < this._clList.length; i++) {
+		if (maxL < this._clList[i].length) {
+			maxI = i;
+			maxL = this._clList[i].length;
+		}
+	}
+
+	// set current item and max-length item
+	var curItem = this._clList[this._clIndex];
+	var maxItem = this._clList[maxI];
+
+	// change text to max-length item temporarily
+	this.setText(maxItem);
+
+	// super
+	TextButton.prototype.fit.call(this);
+
+	// reset text to original item
+	this.setText(curItem);
+};
+
+//--------------------------------------------------------------------------
+// Close choice list
+//--------------------------------------------------------------------------
+ChoiceList.prototype.close = function() {
+	// set choice list to be invisible
+	this._clChoiceBack.visible = false;
 };
 

@@ -1,68 +1,74 @@
 
 //**************************************************************************
 //--------------------------------------------------------------------------
-// InstrBlock - Container which represent instruction
+// Block - Container which contains several ui elements
 //--------------------------------------------------------------------------
 //**************************************************************************
-function InstrBlock() {
+function Block(elements) {
 	// super
 	Container.call(this);
 
-	// set attributes -- just for testing
-	this._elements = [
-		[
-			{type : 'text', params : ['greet', 'How are you ?']},
-			{type : 'check', params : ['greet2', 'Hello']}
-		],
-		{type : 'text', params : ['fuck', 'What the hell']},
-		{type : 'input', params : ['sentence', 'My name is ...']},
-		{type : 'choice', params : ['start', ['Hell', 'Oh', 'World'], 1]},
-		{type : 'check', params : ['fuck2', 'World', true]}
-	];
+	// set attributes
+	this._elements = elements;
 	this._properties = {};
 	this._stackers = [];
+	this._texts = [];
+	this._checks = [];
+	this._choices = [];
+	this._inputs = [];
 	this._contents = null;
 
+	// set constants
 	this._elemSize = 20;
 	this._padding = 10;
 	this._innerGap = 4;
 	this._outerGap = 8;
 	this._offsetY = -0.15;
-
 	this._style = {font : 'bold ' + this._elemSize + 'px sans-serif',
 		fill : 'white', stroke : 'black', strokeThickness : 2};
 
-	this._addContents();
+	// add background and contents
 	this._addBackground();
+	this._addContents();
+
+	// update
+	this._update();
 }
 
 // extends Container
-InstrBlock.prototype = Object.create(Container.prototype);
-InstrBlock.prototype.constructor = InstrBlock;
+Block.prototype = Object.create(Container.prototype);
+Block.prototype.constructor = Block;
 
-InstrBlock.prototype._addContents = function() {
+//--------------------------------------------------------------------------
+// Add background
+//--------------------------------------------------------------------------
+Block.prototype._addBackground = function() {
+	// create background by using nine-patch
+	this._background = new NinePatch(ImageManager.button,
+		2 * this._padding, 2 * this._padding);
+	
+	// add background to this(container)
+	this.addChild(this._background);
+};
+
+//--------------------------------------------------------------------------
+// Add contents
+//--------------------------------------------------------------------------
+Block.prototype._addContents = function() {
 	// get(create) contents recursively
 	this._contents = this._getContents(this._elements.slice(0), 'vert');
 
 	// set position of contents
 	this._contents.position.set(this._padding, this._padding);
-};
 
-InstrBlock.prototype._addBackground = function() {
-	// create background by using nine-patch
-	this._background = new NinePatch(ImageManager.button,
-		this._contents.width + 2 * this._padding,
-		this._contents.height * (1 - this._offsetY) + 2 * this._padding);
-	
-	// add background and contents to this(container)
-	this.addChild(this._background);
+	// add contents to this(container)
 	this.addChild(this._contents);
 };
 
 //--------------------------------------------------------------------------
 // Get contents
 //--------------------------------------------------------------------------
-InstrBlock.prototype._getContents = function(elements, orient) {
+Block.prototype._getContents = function(elements, orient) {
 	if (elements instanceof Array) {
 		// find new orientation
 		var newOrient = (orient == 'vert' ? 'horz' : 'vert');
@@ -96,10 +102,11 @@ InstrBlock.prototype._getContents = function(elements, orient) {
 //--------------------------------------------------------------------------
 // Return text UI
 //--------------------------------------------------------------------------
-InstrBlock.prototype._text = function(id, value) {
+Block.prototype._text = function(id, value) {
 	// create ui
 	var base = new Stacker('horz', 1, this._innerGap);
 	var text = new Text(value, this._style);
+	this._texts.push(text);
 
 	// construct ui
 	base.add(text);
@@ -111,13 +118,14 @@ InstrBlock.prototype._text = function(id, value) {
 //--------------------------------------------------------------------------
 // Return check box UI
 //--------------------------------------------------------------------------
-InstrBlock.prototype._check = function(id, value, toggle) {
+Block.prototype._check = function(id, value, toggle) {
 	// create ui
 	var base = new Stacker('horz', 1, this._innerGap);
 	var checkBox = new ImageToggle(
 		ImageManager.checkOn, ImageManager.checkOff,
 		this._elemSize, this._elemSize, toggle || false);
 	var text = new Text(value, this._style);
+	this._checks.push(checkBox);
 
 	// construct ui
 	base.add(checkBox);
@@ -136,25 +144,13 @@ InstrBlock.prototype._check = function(id, value, toggle) {
 //--------------------------------------------------------------------------
 // Return choice list UI
 //--------------------------------------------------------------------------
-InstrBlock.prototype._choice = function(id, values, index) {
-	// find item which has maximum length
-	var maxL = 0;
-	var maxI = 0;
-	var i;
-	for (i = 0; i < values.length; i++) {
-		if (maxL < values[i].length) {
-			maxL = values[i].length;
-			maxI = i;
-		}
-	}
-
+Block.prototype._choice = function(id, values, index) {
 	// create ui
 	var base = new Stacker('horz', 1, this._innerGap);
 	var choice = new ChoiceList(
 		ImageManager.choice, ImageManager.list,
-		100, this._elemSize + 2 * this._padding, values, maxI);
-	choice.fit();
-	choice.setIndex(index || 0);
+		100, this._elemSize + 2 * this._padding, values, index || 0, true);
+	this._choices.push(choice);
 
 	// construct ui
 	base.add(choice);
@@ -172,11 +168,12 @@ InstrBlock.prototype._choice = function(id, values, index) {
 //--------------------------------------------------------------------------
 // Return text field of UI
 //--------------------------------------------------------------------------
-InstrBlock.prototype._input = function(id, value) {
+Block.prototype._input = function(id, value) {
 	// create ui
 	var base = new Stacker('horz', 1, this._innerGap);
 	var txtFld = new TextField(ImageManager.textField,
 		100, this._elemSize + 2 * this._padding, value || '', true);
+	this._inputs.push(txtFld);
 	
 	// construct ui
 	base.add(txtFld);
@@ -192,7 +189,13 @@ InstrBlock.prototype._input = function(id, value) {
 	return base;
 };
 
-InstrBlock.prototype._update = function() {
+//--------------------------------------------------------------------------
+// Update
+//--------------------------------------------------------------------------
+Block.prototype._update = function() {
+	// close all choice lists
+	this.closeChoices();
+
 	// loop for each stacker
 	var i;
 	for (i = 0; i < this._stackers.length; i++)
@@ -201,5 +204,99 @@ InstrBlock.prototype._update = function() {
 	// resize background
 	this._background.resize(this._contents.width + 2 * this._padding,
 		this._contents.height * (1 - this._offsetY) + 2 * this._padding);
+};
+
+//--------------------------------------------------------------------------
+// Close all choice lists
+//--------------------------------------------------------------------------
+Block.prototype.closeChoices = function() {
+	var i;
+	for (i = 0; i < this._choices.length; i++)
+		this._choices[i].close();
+};
+
+//--------------------------------------------------------------------------
+// Close all text fields
+//--------------------------------------------------------------------------
+Block.prototype.closeInputs = function() {
+	var i;
+	for (i = 0; i < this._inputs.length; i++)
+		this._inputs[i].close();
+};
+
+//--------------------------------------------------------------------------
+// Get property of properties
+//--------------------------------------------------------------------------
+Block.prototype.getProp = function(id) {
+	return (id ? this._properties[id] : this._properties);
+};
+
+
+
+
+
+//**************************************************************************
+//--------------------------------------------------------------------------
+// Instruction Block - Container which represent instruction
+//--------------------------------------------------------------------------
+//**************************************************************************
+function InstrBlock(instrId) {
+	// super
+	Container.call(this);
+
+	// set attributes
+	this._instrId = instrId;
+	this._block = null;
+	this._interpretFunc = null;
+
+	// setup
+	this._setup();
+
+	// add block to this(container)
+	this.addChild(this._block);
+};
+
+// extends Container
+InstrBlock.prototype = Object.create(Container.prototype);
+InstrBlock.prototype.constructor = InstrBlock;
+
+//--------------------------------------------------------------------------
+// Setup instruction block
+//--------------------------------------------------------------------------
+InstrBlock.prototype._setup = function() {
+	// call appropriate function by using instruction ID
+	this['_' + this._instrId].call(this);
+};
+
+//--------------------------------------------------------------------------
+// Test instruction block
+//--------------------------------------------------------------------------
+InstrBlock.prototype._test = function() {
+	// set elements
+	var elements = [
+		{type : 'text', params : ['', 'Test block :']},
+		[
+			{type : 'check', params : ['check1', 'Check 1', false]},
+			{type : 'check', params : ['check2', 'Check 2', true]}
+		],
+		{type : 'choice', params : ['list', ['Up', 'Down', 'Left', 'Right', 'Center'], 1]},
+		{type : 'input', params : ['text', 'Click and input text.']}
+	];
+
+	// create block
+	this._block = new Block(elements);
+
+	// interpret function
+	this._interpretFunc = function() {
+		console.log(this._block.getProp());
+	};
+};
+
+//--------------------------------------------------------------------------
+// Interpret instruction
+//--------------------------------------------------------------------------
+InstrBlock.prototype.interpret = function() {
+	// call interpret function
+	this._interpretFunc.call(this);
 };
 
