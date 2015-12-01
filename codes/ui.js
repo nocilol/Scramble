@@ -170,6 +170,45 @@ Stacker.prototype.remove = function(index) {
 
 	// update stacker
 	this.update();
+
+	// return removed object
+	return remObj;
+};
+
+//--------------------------------------------------------------------------
+// Add multiple objects
+//--------------------------------------------------------------------------
+Stacker.prototype.addMulti = function(objects, index) {
+	// add objects into stack
+	this._stack.splice.bind(this, index || this.size(), 0)
+	.apply(this, objects);
+
+	// add objects to this(container)
+	var i;
+	for (i = 0; i < objects.length; i++)
+		this.addChild(objects[i]);
+
+	// update stacker
+	this.update();
+};
+
+//--------------------------------------------------------------------------
+// Remove multiple objects
+//--------------------------------------------------------------------------
+Stacker.prototype.removeMulti = function(index, number) {
+	// remove objects from stack
+	var remObjs = this._stack.splice(index, number);
+
+	// remove objects from this(container)
+	var i;
+	for (i = 0; i < remObjs.length; i++)
+		this.removeChild(remObjs[i]);
+
+	// update stacker
+	this.update();
+
+	// return removed objects
+	return remObjs;
 };
 
 //--------------------------------------------------------------------------

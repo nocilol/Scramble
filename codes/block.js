@@ -22,9 +22,9 @@ function Block(elements, color) {
 	// set constants
 	this._elemSize = 30;
 	this._padding = 10;
-	this._innerGap = 4;
-	this._outerGap = 8;
-	this._offsetY = -0.15;
+	this._innerGap = 6;
+	this._outerGap = 12;
+	this._offsetY = -0.08;
 	this._style = {font : 'bold ' + this._elemSize + 'px sans-serif',
 		fill : 'white', stroke : 'black', strokeThickness : 2};
 
