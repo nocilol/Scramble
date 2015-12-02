@@ -140,6 +140,7 @@ ImageManager.list = function() {
 	this._loadList = [];
 	
 	// construct load list
+	this._loadList.push(this._backgroundPath = 'images/Background.png');
 	this._loadList.push(this._redButtonPath = 'ui/red_button08.png');
 	this._loadList.push(this._blueButtonPath = 'ui/blue_button09.png');
 	this._loadList.push(this._greenButtonPath = 'ui/green_button09.png');
@@ -182,6 +183,7 @@ ImageManager.setup = function() {
 //--------------------------------------------------------------------------
 ImageManager.alias = function() {
 	// alias for shorter notation
+	this.background = loader.resources[this._backgroundPath].texture;
 	this.button = {
 		red : loader.resources[this._redButtonPath].texture,
 		blue : loader.resources[this._blueButtonPath].texture,

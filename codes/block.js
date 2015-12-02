@@ -247,7 +247,7 @@ Block.prototype.getProp = function(id) {
 //**************************************************************************
 function InstrBlock(instrId, constraint) {
 	// super
-	Draggable.call(this, constraint || null);
+	Draggable.call(this, null, constraint || null);
 
 	// set attributes
 	this._instrId = instrId;

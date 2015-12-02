@@ -676,11 +676,12 @@ MaskContainer.prototype.getArea = function() {
 // Draggable - Container which can be dragged
 //--------------------------------------------------------------------------
 //**************************************************************************
-function Draggable(constraint) {
+function Draggable(target, constraint) {
 	// super
 	Container.call(this);
 	
 	// set attributes
+	this.target = target || this;
 	this.constraint = constraint || null;
 	this._startFunc = null;
 	this._moveFunc = null;
@@ -725,7 +726,7 @@ Draggable.prototype._addDrag = function() {
 Draggable.prototype._dragStart = function(event) {
 	// set drag data
 	this._dragData = event.data;
-	this._dragOrg = {x : this.x, y : this.y};
+	this._dragOrg = {x : this.target.x, y : this.target.y};
 	this._dragPos = event.data.global.clone();
 	this._dragging = true;
 
@@ -750,7 +751,7 @@ Draggable.prototype._dragMove = function() {
 	var movePos = this._getMovePos(difX, difY);
 
 	// set position
-	this.position.set(movePos.x, movePos.y);
+	this.target.position.set(movePos.x, movePos.y);
 
 	// check if custom move function exists
 	if (this._moveFunc)
@@ -762,13 +763,13 @@ Draggable.prototype._dragMove = function() {
 //--------------------------------------------------------------------------
 Draggable.prototype._getMovePos = function(difX, difY) {
 	// create bound object of this
-	var fixBound = {width : this.width, height : this.height,
+	var fixBound = {width : this.target.width, height : this.target.height,
 		x : (this._dragOrg.x + difX), y : (this._dragOrg.y + difY)};
 
 	// check if constraint exists
 	if (this.constraint) {
 		// create bound object of constraint object
-		var consBound = this.parent.toLocal(
+		var consBound = this.target.parent.toLocal(
 			this.constraint.position, this.constraint.parent);
 		consBound.width = this.constraint.width;
 		consBound.height = this.constraint.height;
@@ -846,6 +847,8 @@ function ScrollContainer(scrWidth, scrHeight, conWidth, conHeight) {
 	this._conHeight = conHeight || scrHeight;
 	this.contents = null;
 	this._scroller = null;
+	this._scrollerFore = null;
+	this._scrollerBack = null;
 
 	this._addScroller();
 	this._addContents();
@@ -861,25 +864,30 @@ ScrollContainer.prototype.constructor = ScrollContainer;
 // Add scroller
 //--------------------------------------------------------------------------
 ScrollContainer.prototype._addScroller = function() {
-	// create scroller by using graphics object
-	this._scroller = new Graphics();
+	// create scroller by using draggable object and rectangle-area
+	this._scroller = new Draggable();
+	this._scrollerBack = new RectArea(1, 1);
+	this._scrollerFore = new RectArea(this._scrWidth, this._scrHeight);
 
-	// add scroller to this(mask-container)
+	// construct scroller
+	this.addChild(this._scrollerBack);
+	this._scroller.addChild(this._scrollerFore);
 	this.addChild(this._scroller);
-
-	// set scroller to be invisible
-	this._scroller.visible = false;
 };
 
 //--------------------------------------------------------------------------
 // Add contents
 //--------------------------------------------------------------------------
 ScrollContainer.prototype._addContents = function() {
-	// create contents by using draggable object
-	this.contents = new Draggable(this._scroller);
+	// create contents by using draggable object and rectangle-area
+	this.contents = new Container();
 
-	// add contents to this(mask-container)
+	// construct contents
 	this.addChild(this.contents);
+
+	// set target and constraint of scroller
+	this._scroller.target = this.contents;
+	this._scroller.constraint = this._scrollerBack;
 };
 
 //--------------------------------------------------------------------------
@@ -890,27 +898,25 @@ ScrollContainer.prototype._updateScroller = function() {
 	var bound = {};
 	if (this._scrWidth >= this._conWidth) {
 		bound.x = 0;
-		bound.width = this._conWidth;
+		bound.width = this.contents.width;
 	} else {
 		bound.x = this._scrWidth - this._conWidth;
-		bound.width = 2 * this._conWidth - this._scrWidth;
+		bound.width = this.contents.width + this._conWidth - this._scrWidth;
 	}
 	if (this._scrHeight >= this._conHeight) {
 		bound.y = 0;
-		bound.height = this._conHeight;
+		bound.height = this.contents.height;
 	} else {
 		bound.y = this._scrHeight - this._conHeight;
-		bound.height = 2 * this._conHeight - this._scrHeight;
+		bound.height = this.contents.height + this._conHeight - this._scrHeight;
 	}
 
-	// draw scroller
-	this._scroller.clear();
-	this._scroller.beginFill();
-	this._scroller.drawRect(bound.x, bound.y, bound.width, bound.height);
-	this._scroller.endFill();
+	// resize scroller
+	this._scrollerBack.resize(bound.width, bound.height);
+	this._scrollerFore.resize(this._scrWidth, this._scrHeight);
 
 	// set position of scroller
-	this._scroller.position.set(bound.x, bound.y);
+	this._scrollerBack.position.set(bound.x, bound.y);
 };
 
 //--------------------------------------------------------------------------
