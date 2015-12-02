@@ -20,10 +20,10 @@ function Block(elements, color) {
 	this._contents = null;
 
 	// set constants
-	this._elemSize = 30;
-	this._padding = 10;
-	this._innerGap = 6;
-	this._outerGap = 12;
+	this._elemSize = 18;
+	this._padding = 6;
+	this._innerGap = 3;
+	this._outerGap = 6;
 	this._offsetY = -0.08;
 	this._style = {font : 'bold ' + this._elemSize + 'px sans-serif',
 		fill : 'white', stroke : 'black', strokeThickness : 2};
@@ -211,24 +211,28 @@ Block.prototype._update = function() {
 // Close all choice lists
 //--------------------------------------------------------------------------
 Block.prototype.closeChoices = function() {
+	// for each choice lists
 	var i;
 	for (i = 0; i < this._choices.length; i++)
-		this._choices[i].close();
+		this._choices[i].close(); // close choice list
 };
 
 //--------------------------------------------------------------------------
 // Close all text fields
 //--------------------------------------------------------------------------
 Block.prototype.closeInputs = function() {
+	// for each text fields
 	var i;
 	for (i = 0; i < this._inputs.length; i++)
-		this._inputs[i].close();
+		this._inputs[i].close(); // close text field
 };
 
 //--------------------------------------------------------------------------
 // Get property of properties
 //--------------------------------------------------------------------------
 Block.prototype.getProp = function(id) {
+	// if id parameter exists, return spedific property
+	// if not, return map of properties
 	return (id ? this._properties[id] : this._properties);
 };
 
@@ -238,12 +242,12 @@ Block.prototype.getProp = function(id) {
 
 //**************************************************************************
 //--------------------------------------------------------------------------
-// Instruction Block - Container which represent instruction
+// Instruction Block - Draggable which represent instruction
 //--------------------------------------------------------------------------
 //**************************************************************************
-function InstrBlock(instrId) {
+function InstrBlock(instrId, constraint) {
 	// super
-	Container.call(this);
+	Draggable.call(this, constraint || null);
 
 	// set attributes
 	this._instrId = instrId;
@@ -258,7 +262,7 @@ function InstrBlock(instrId) {
 };
 
 // extends Container
-InstrBlock.prototype = Object.create(Container.prototype);
+InstrBlock.prototype = Object.create(Draggable.prototype);
 InstrBlock.prototype.constructor = InstrBlock;
 
 //--------------------------------------------------------------------------

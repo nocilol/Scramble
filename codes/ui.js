@@ -444,28 +444,38 @@ NinePatch.prototype._updateSprites = function() {
 	var h = this._npHeight;
 	var b = this._npBorder;
 	var s; // temporary variable for sprite
+	var t; // temporary variable for texture of sprite
 
 	// reset position and size of sprites
 	// INPORTANT: find some BUG in PIXI,
 	//             sign of scale can be reversed sometimes
-	s = this._npSprites['up']; s.x = b; s.y = 0; s.width = w - 2 * b; s.height = b;
-	if (s.scale.x < 0) s.scale.x *= -1; if (s.scale.y < 0) s.scale.y *= -1;
-	s = this._npSprites['down']; s.x = b; s.y = h - b; s.width = w - 2 * b; s.height = b;
-	if (s.scale.x < 0) s.scale.x *= -1; if (s.scale.y < 0) s.scale.y *= -1;
-	s = this._npSprites['left']; s.x = 0; s.y = b; s.width = b; s.height = h - 2 * b;
-	if (s.scale.x < 0) s.scale.x *= -1; if (s.scale.y < 0) s.scale.y *= -1;
-	s = this._npSprites['right']; s.x = w - b; s.y = b; s.width = b; s.height = h - 2 * b;
-	if (s.scale.x < 0) s.scale.x *= -1; if (s.scale.y < 0) s.scale.y *= -1;
-	s = this._npSprites['upperLeft']; s.x = 0; s.y = 0; s.width = b; s.height = b;
-	if (s.scale.x < 0) s.scale.x *= -1; if (s.scale.y < 0) s.scale.y *= -1;
-	s = this._npSprites['upperRight']; s.x = w - b; s.y = 0; s.width = b; s.height = b;
-	if (s.scale.x < 0) s.scale.x *= -1; if (s.scale.y < 0) s.scale.y *= -1;
-	s = this._npSprites['lowerLeft']; s.x = 0; s.y = h - b; s.width = b; s.height = b;
-	if (s.scale.x < 0) s.scale.x *= -1; if (s.scale.y < 0) s.scale.y *= -1;
-	s = this._npSprites['lowerRight']; s.x = w - b; s.y = h - b; s.width = b; s.height = b;
-	if (s.scale.x < 0) s.scale.x *= -1; if (s.scale.y < 0) s.scale.y *= -1;
-	s = this._npSprites['center']; s.x = b; s.y = b; s.width = w - 2 * b; s.height = h - 2 * b;
-	if (s.scale.x < 0) s.scale.x *= -1; if (s.scale.y < 0) s.scale.y *= -1;
+	s = this._npSprites['up']; t = s.texture;
+	s.position.set(b, 0); s.scale.set((w - 2 * b) / t.width, b / t.height);
+	if (s.scale.x < 0) s.scale.x = 0;
+	s = this._npSprites['down']; t = s.texture;
+	s.position.set(b, h - b); s.scale.set((w - 2 * b) / t.width, b / t.height);
+	if (s.scale.x < 0) s.scale.x = 0; if (s.y < b) s.y = b;
+	s = this._npSprites['left']; t = s.texture;
+	s.position.set(0, b); s.scale.set(b / t.width, (h - 2 * b) / t.height);
+	if (s.scale.y < 0) s.scale.y = 0;
+	s = this._npSprites['right']; t = s.texture;
+	s.position.set(w - b, b); s.scale.set(b / t.width, (h - 2 * b) / t.height);
+	if (s.x < b) s.x = b; if (s.scale.y < 0) s.scale.y = 0;
+	s = this._npSprites['upperLeft']; t = s.texture;
+	s.position.set(0, 0); s.scale.set(b / t.width, b / t.height);
+		/* check nothing */
+	s = this._npSprites['upperRight']; t = s.texture;
+	s.position.set(w - b, 0); s.scale.set(b / t.width, b / t.height);
+	if (s.x < b) s.x = b;
+	s = this._npSprites['lowerLeft']; t = s.texture;
+	s.position.set(0, h - b); s.scale.set(b / t.width, b / t.height);
+	if (s.y < b) s.y = b;
+	s = this._npSprites['lowerRight']; t = s.texture;
+	s.position.set(w - b, h - b); s.scale.set(b / t.width, b / t.height);
+	if (s.x < b) s.x = b; if (s.y < b) s.y = b;
+	s = this._npSprites['center']; t = s.texture;
+	s.position.set(b, b); s.scale.set((w - 2 * b) / t.width, (h - 2 * b) / t.height);
+	if (s.scale.x < 0) s.scale.x = 0; if (s.scale.y < 0) s.scale.y = 0;
 };
 
 //--------------------------------------------------------------------------
@@ -949,7 +959,7 @@ function TextButton(texture, width, height, text, style, align, padding, offsetY
 	this._tbHeight = height;
 	this._tbText = text || '';
 	this._tbAlign = align || 1;
-	this._tbPadding = padding || 10;
+	this._tbPadding = padding || 6;
 	this._tbOffsetY = offsetY || -0.08;
 	this._tbStyle = style || {font : 'bold ' + (this._tbHeight - 2 * this._tbPadding)
 		+ 'px sans-serif', fill : 'white', stroke : 'black', strokeThickness : 2};
@@ -1208,7 +1218,7 @@ ImageToggle.prototype.resize = function(width, height) {
 //**************************************************************************
 function TextField(texture, width, height, text, autofit, type, style, align) {
 	// super
-	var defaultStyle = {font : 'bold ' + (height - 2 * 10)
+	var defaultStyle = {font : 'bold ' + (height - 2 * 6)
 		+ 'px sans-serif', fill : 'black', strokeThickness : 0};
 	TextButton.call(this,
 		texture, width, height, text, style || defaultStyle, align || 0);
@@ -1366,9 +1376,9 @@ function ChoiceList(texBtn, texCon, width, height, list, index, autofit, style, 
 	this._clList = list;
 	this._clIndex = index || 0;
 	this._clAutofit = autofit || false;
-	this._clStyle = style || {font : 'bold ' + (this._clHeight - 20)
+	this._clStyle = style || {font : 'bold ' + (this._clHeight - 2 * 6)
 		+ 'px sans-serif', fill : 'black'};
-	this._clPadding = padding || 10;
+	this._clPadding = padding || 6;
 	this._clChoiceFunc = null;
 
 	// add choice list and click function

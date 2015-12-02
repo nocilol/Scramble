@@ -9,7 +9,7 @@
 console.log(PIXI);
 
 // initialize stage and renderer
-StageManager.init(1024 * 2, 768 * 2);
+StageManager.init(1024, 768);
 
 // call UI test
 // UiTest.call();
