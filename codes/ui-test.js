@@ -74,7 +74,7 @@ UiTest._setup = function() {
 	// create scroll-container and add it to container
 	this._scrCont = new ScrollContainer(200, 200);
 	this._scrCont.contents.addChild(this._dogSprite);
-	this._scrCont.update(this._dogSprite.width - 10, this._dogSprite.height - 10);
+	this._scrCont.resizeContents(this._dogSprite.width - 10, this._dogSprite.height - 10);
 	this._scrCont.position.set(20, 500);
 	this._container.addChild(this._scrCont);
 

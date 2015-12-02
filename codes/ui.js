@@ -920,16 +920,10 @@ ScrollContainer.prototype._updateScroller = function() {
 };
 
 //--------------------------------------------------------------------------
-// Update size of contents
+// Update
 //--------------------------------------------------------------------------
-ScrollContainer.prototype.update = function(conWidth, conHeight) {
-	// reset size of contents
-	this._conWidth = conWidth;
-	this._conHeight = conHeight;
-	
-	// update scroller
-	this._updateScroller();
-};
+ScrollContainer.prototype.update =
+	ScrollContainer.prototype._updateScroller;
 
 //--------------------------------------------------------------------------
 // Resize scroller
@@ -942,6 +936,18 @@ ScrollContainer.prototype.resize = function(scrWidth, scrHeight) {
 	this._scrWidth = scrWidth;
 	this._scrHeight = scrHeight;
 
+	// update scroller
+	this._updateScroller();
+};
+
+//--------------------------------------------------------------------------
+// Resize of contents
+//--------------------------------------------------------------------------
+ScrollContainer.prototype.resizeContents = function(conWidth, conHeight) {
+	// reset size of contents
+	this._conWidth = conWidth;
+	this._conHeight = conHeight;
+	
 	// update scroller
 	this._updateScroller();
 };

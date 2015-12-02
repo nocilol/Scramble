@@ -23,7 +23,7 @@ BlockTest.call = function() {
 		(1024 - this._testIb.width) / 2, (768 - this._testIb.height) / 2);
 
 	// update container
-	this._container.update(1024 * 2, 768 * 2);
+	this._container.update();
 
 	// set animate function
 	StageManager.setAnimate(this._animate, this);
