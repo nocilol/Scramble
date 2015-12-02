@@ -706,7 +706,7 @@ Draggable.prototype._addInteractive = function() {
 	this.interactive = true;
 
 	// set button-mode property to true
-	this.buttonMode = true;
+	// this.buttonMode = true;
 };
 
 //--------------------------------------------------------------------------
@@ -941,7 +941,7 @@ ScrollContainer.prototype.resize = function(scrWidth, scrHeight) {
 };
 
 //--------------------------------------------------------------------------
-// Resize of contents
+// Resize contents
 //--------------------------------------------------------------------------
 ScrollContainer.prototype.resizeContents = function(conWidth, conHeight) {
 	// reset size of contents
