@@ -245,12 +245,15 @@ Block.prototype.getProp = function(id) {
 // Instruction Block - Draggable which represent instruction
 //--------------------------------------------------------------------------
 //**************************************************************************
-function InstrBlock(instrId, constraint) {
+function InstrBlock(instr, globEnv, locEnv, charEnv, constraint) {
 	// super
 	Draggable.call(this, null, constraint || null);
 
 	// set attributes
-	this._instrId = instrId;
+	this._instr = instr;
+	this._globEnv = globEnv;
+	this._locEnv = locEnv;
+	this._charEnv = charEnv;
 	this._block = null;
 	this._interpretFunc = null;
 
@@ -270,7 +273,7 @@ InstrBlock.prototype.constructor = InstrBlock;
 //--------------------------------------------------------------------------
 InstrBlock.prototype._setup = function() {
 	// call appropriate function by using instruction ID
-	this['_' + this._instrId].call(this);
+	this['_' + this._instr['id']].call(this);
 };
 
 //--------------------------------------------------------------------------
@@ -279,15 +282,17 @@ InstrBlock.prototype._setup = function() {
 InstrBlock.prototype._test = function() {
 	// INPORTANT: JUST KIDDING !!!
 
+	var values = this._instr['values'];
+
 	// set elements
 	var elements = [
 		{type : 'text', params : ['', 'Write console : ']},
 		[
-			{type : 'check', params : ['check1', 'Ahn Jeonghyeon', true]},
-			{type : 'check', params : ['check2', 'Kwon Mingyu', true]}
+			{type : 'check', params : ['check1', 'Ahn Jeonghyeon', values[0]]},
+			{type : 'check', params : ['check2', 'Kwon Mingyu', values[1]]}
 		],
-		{type : 'choice', params : ['list', ['love', 'like', 'hate', 'play', 'show'], 0]},
-		{type : 'input', params : ['text', 'each other.']}
+		{type : 'choice', params : ['list', ['love', 'like', 'hate', 'play', 'show'], values[2]]},
+		{type : 'input', params : ['text', values[3]]}
 	];
 
 	// create block
@@ -312,11 +317,101 @@ InstrBlock.prototype._test = function() {
 			number = 0;
 		}
 
+		this._evalAssign('@x', '@x + 0.2');
+		this._evalAssign('@y', '@y + 0.1');
+
 		// print log to console
 		console.log(names,
 			this._block.getProp('list') + (number < 2 ? 's' : ''),
 			this._block.getProp('text'));
 	};
+};
+
+//--------------------------------------------------------------------------
+// Evaluate assignment
+//--------------------------------------------------------------------------
+InstrBlock.prototype._evalAssign = function(lvexp, rexp) {
+	// check left value is not a variable
+	if (!lvexp.match(/^[$#@]?\w+$/i)) {
+		throw new Error('Left value of assignment do not represent variable.');
+	}
+
+	// check if left value does not have scope expression
+	if (!lvexp.match(/^[$#@].+/i))
+		lvexp = '#' + lvexp; // add local expression mark
+	
+	// evaluate
+	var evalExp = this._getExp(lvexp, 1) + ' = ' + this._getExp(rexp) + ';'
+	eval(evalExp);
+};
+
+//--------------------------------------------------------------------------
+// Get refine expression from expression
+//--------------------------------------------------------------------------
+InstrBlock.prototype._getExp = function(exp, level) {
+	// replace variable expression
+	return exp.replace(/[$#@][$#\w]+/gi, (function(varExp) {
+		// find sub variable number
+		var match = varExp.match(/[$#@]/gi);
+
+		// loop until number of sub variables less or equal than level
+		while ((match ? match.length : 0) > (level || 0)) {
+
+			// replace sub variable
+			varExp = varExp.replace(/[$#@]\w+/gi, (function(varSubExp) {
+				// check if sub variable is chained
+				if (varSubExp.charAt(varSubExp.length - 1) == '_') // chained
+					return varSubExp; // return itself
+				else // not chained
+					return this._getVar(varSubExp); // return variable's value
+			}).bind(this));
+
+			// re-find sub variable number
+			match = varExp.match(/[$#@]/gi);
+		}
+
+		// check main variable(unchained variable) exists
+		if (varExp.charAt(0) == '$') // global
+			return 'this._globEnv.' + varExp.slice(1); // return global expression
+		else if (varExp.charAt(0) == '#') // local
+			return 'this._locEnv.' + varExp.slice(1); // return local expression
+		else if (varExp.charAt(0) == '@') // character
+			return 'this._charEnv.' + varExp.slice(1); // return character expression
+		else // not exists
+			return varExp; // return itself
+	}).bind(this));
+}
+
+//--------------------------------------------------------------------------
+// Get variable value from expression
+//--------------------------------------------------------------------------
+InstrBlock.prototype._getVar = function(exp) {
+	// find scope and name of variable
+	var scope = exp.charAt(0);
+	var name = exp.slice(1);
+
+	// check scope
+	if (scope == '$') { // global
+		// check if variable exists
+		if (this._globEnv[name])
+			return this._globEnv[name]; // return variable
+		else
+			return this._globEnv[name] = 0; // initialize to 0 and return it
+	} else if (scope == '#') { // local
+		// check if variable exists
+		if (this._locEnv[name])
+			return this._locEnv[name]; // return variable
+		else
+			return this._locEnv[name] = 0; // initialize to 0 and return it
+	} else if (scope == '@') {
+		if (this._charEnv[name])
+			return this._charEnv[name]; // return variable
+		else
+			return this._charEnv[name] = 0; // initialize to 0 and return it
+	} else {
+		// else - system error
+		throw new Error('Expression does not represent variable.');
+	}
 };
 
 //--------------------------------------------------------------------------

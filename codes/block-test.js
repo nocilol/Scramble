@@ -14,7 +14,12 @@ BlockTest.call = function() {
 	this._container.contents.addChild(this._testBack);
 
 	// create test insturction block
-	this._testIb = new InstrBlock('test', this._testRect);
+	this._testIns = {
+		id : 'test',
+		values : [true, true, 0, 'each other.']
+	};
+	this._testIb = new InstrBlock(
+		this._testIns, {}, {}, this._testBack, this._testRect);
 	this._container.contents.addChild(this._testIb);
 
 	// add test instruction block to stage and reposit it
