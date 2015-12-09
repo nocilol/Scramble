@@ -15,5 +15,8 @@ StageManager.init(1024, 768);
 // UiTest.call();
 
 // call block test
-ImageManager.init(function() {BlockTest.call()}, this);
+// ImageManager.init(function() {BlockTest.call()}, this);
+
+// call scene
+ImageManager.init(function() {SceneManager.call()}, this);
 

@@ -322,6 +322,29 @@ InstrBlock.prototype._end = function() {
 	};
 };
 
+InstrBlock.prototype._assign = function() {
+	
+	var values = this._instr['values'];
+	var element = [
+		{type : 'input', params : ['lvexp', values[0]]},
+		{type : 'text', params : ['', '를 ']},
+		{type : 'input', params : ['rexp', values[1]]},
+		{type : 'text', params : ['', '로 설정한다']}
+	];
+
+	this._block = new Block(element, 'red');
+
+	this._interpretFunc = function() {
+		try {
+			this._evalAssign(this._block.getProp('lvexp'), this._block.getProp('rexp'));
+		} catch(error) {
+			console.log(error.message);
+		}
+
+		this._locEnv._ic += 1;
+	};
+};
+
 //--------------------------------------------------------------------------
 // Wait instruction block
 //--------------------------------------------------------------------------
@@ -343,8 +366,12 @@ InstrBlock.prototype._wait = function() {
 		this._locEnv._ic += 1;
 
 		// set delay
-		var delay = eval(this._block.getProp('delay'));
-		this._locEnv._delay = delay;
+		try {
+			var delay = eval(this._block.getProp('delay'));
+			this._locEnv._delay = delay;
+		} catch(error) {
+			console.log(error.message);
+		}
 	};
 };
 
@@ -534,5 +561,239 @@ InstrStack.prototype.start = function() {
 		// decrease delay(frame)
 		this._locEnv._delay -= 1;
 	}
+};
+
+
+
+
+
+function SpriteItem(image, name, width, height, size, styleOn, styleOff, gap) {
+	Button.call(this);
+
+	this._image = image;
+	this._name = name;
+	this._width = width;
+	this._height = height;
+	this._size = size;
+	this._styleOn = styleOn || {
+		font : 'bold ' + this._size + 'px sans-serif',
+		fill : 'red'
+	};
+	this._styleOff = styleOff || {
+		font : 'bold ' + this._size + 'px sans-serif',
+		fill : 'black'
+	};
+	this._gap = gap || 5;
+
+	this._addSprite();
+	this._addText();
+}
+
+SpriteItem.prototype = Object.create(Button.prototype);
+SpriteItem.prototype.constructor = SpriteItem;
+
+SpriteItem.prototype._addSprite = function() {
+	this._sprite = new Sprite(this._image);
+
+	this._sprite.width = this._width;
+	this._sprite.height = this._height;
+
+	this.addChild(this._sprite);
+}
+
+SpriteItem.prototype._addText = function() {
+	this._text = new Text(this._name, this._styleOff);
+
+	var posX = (this._width - this._text.width) / 2;
+	var posY = this._height + this._gap;
+	this._text.position.set(posX, posY);
+
+	this.addChild(this._text);
+}
+
+SpriteItem.prototype.getName = function() {
+	return this._name;
+};
+
+SpriteItem.prototype.set = function(flag) {
+	if (flag)
+		this._text.style = this._styleOn;
+	else
+		this._text.style = this._styleOff;
+};
+
+
+
+
+
+function SceneManager() {
+	throw new Error('This is a static class.');
+}
+
+SceneManager.call = function() {
+	this._spWidth = 200;
+	this._spMargin = 20;
+
+	this._ilWidth = 300;
+
+	this._globEnv = {};
+	this._chMap = {};
+	this._isMap = {};
+
+	this._addCreator();
+
+	this._addMainWindow();
+	this._addSpriteWindow();
+
+	this._setSpriteWindow();
+
+	this._addStage();
+	this._addEvents();
+
+	this._start();
+};
+
+SceneManager._addCreator = function() {
+	this._creator = new Container();
+
+	StageManager.stage.add('creator', this._creator, true);
+}
+
+SceneManager._addMainWindow = function() {
+	this._mainWindow = new Alterator();
+
+	this._creator.addChild(this._mainWindow);
+};
+
+SceneManager._addSpriteWindow = function() {
+	this._spriteWindow = new Container();
+
+	this._spriteWindow.x = 1024 - this._spWidth;
+
+	this._creator.addChild(this._spriteWindow);
+};
+
+SceneManager._addStage = function() {
+	var backPanel = new NinePatch(
+		ImageManager.panel, 1024 - this._spWidth, 768);
+	this._mainWindow.add('stage', backPanel, true);
+
+	this._addStageSprite(
+		'Background', ImageManager.background, backPanel.width, backPanel.height);
+	this._addStageSprite('Cat', ImageManager.cat, 300, 300);
+	this._addStageSprite('Dog', ImageManager.dog, 300, 300, 400, 350);
+
+	var playSprite = new Sprite(ImageManager.play);
+	playSprite.width = playSprite.height = 60;
+	playSprite.position.set(backPanel.width - 20 - 60 - 20 - 60, 20);
+	this._mainWindow.get('stage').addChild(playSprite);
+
+	var stopSprite = new Sprite(ImageManager.stop);
+	stopSprite.width = stopSprite.height = 60;
+	stopSprite.position.set(backPanel.width - 20 - 60, 20);
+	this._mainWindow.get('stage').addChild(stopSprite);
+};
+
+SceneManager._addStageSprite = function(name, image, width, height, x, y) {
+	var sprite = new Sprite(image);
+	sprite.width = width; sprite.height = height;
+	sprite.position.set(x || 0, y || 0);
+	// sprite.anchor.set(0.5, 0.5);
+	
+	var draggable = new Draggable(sprite, this._mainWindow);
+	draggable.addChild(sprite);
+	this._mainWindow.get('stage').addChild(draggable);
+
+	this._chMap[name] = sprite;
+};
+
+SceneManager._setSpriteWindow = function() {
+	var backPanel = new NinePatch(
+		ImageManager.panel, this._spWidth, 768);
+	this._spriteWindow.addChild(backPanel);
+
+	var itemSize = this._spWidth - 2 * this._spMargin;
+
+	this._spList = new Stacker(null, null, this._spMargin);
+	this._spList.position.set(this._spMargin, this._spMargin);
+	this._spriteWindow.addChild(this._spList);
+
+	this._spList.add(new SpriteItem(
+		ImageManager.background, 'Background', itemSize, itemSize, 20));
+	this._spList.add(new SpriteItem(
+		ImageManager.cat, 'Cat', itemSize, itemSize, 20));
+	this._spList.add(new SpriteItem(
+		ImageManager.dog, 'Dog', itemSize, itemSize, 20));
+};
+
+SceneManager._addEvents = function() {
+	var i;
+	for (i = 0; i < this._spList.size(); i++) {
+		var spItem = this._spList.get(i);
+		var key = 'event-' + spItem.getName();
+
+		this._addEvent(spItem.getName());
+
+		spItem.setClick((function(item, key) {
+			var j;
+			for (j = 0; j < this._spList.size(); j++) {
+				this._spList.get(j).set(false);
+			}
+
+			if (this._mainWindow.current() != key) {
+				this._mainWindow.show(key);
+				item.set(true);
+			} else {
+				this._mainWindow.show('stage');
+			}
+		}).bind(this, spItem, key), this);
+	}
+};
+
+SceneManager._addEvent = function(name) {
+	var container = new Container();
+	this._mainWindow.add('event-' + name, container);
+
+	var backPanelLeft = new NinePatch(
+		ImageManager.panel, 1024 - this._spWidth - this._ilWidth, 768);
+	container.addChild(backPanelLeft);
+
+	var backPanelRight = new NinePatch(
+		ImageManager.panel, this._ilWidth, 768);
+	backPanelRight.position.set(1024 - this._spWidth - this._ilWidth, 0);
+	container.addChild(backPanelRight);
+
+	var instrList = [
+		{id : 'start', values : []},
+		{id : 'assign', values : ['#x', '0']},
+		{id : 'assign', values : ['#y', '1']},
+		{id : 'wait', values : ['10']},
+		{id : 'assign', values : ['#z', '2']},
+		{id : 'wait', values : ['20']},
+		{id : 'end', values : []}
+	];
+	var instrStack = new InstrStack(
+		this._globEnv, this._chMap[name], backPanelLeft, instrList);
+	instrStack.position.set(20, 20);
+	backPanelLeft.addChild(instrStack);
+	this._isMap[name] = instrStack;
+
+	var instrList = [
+		{id : 'start', values : []},
+		{id : 'end', values : []},
+		{id : 'assign', values : ['', '']},
+		{id : 'wait', values : ['']},
+	];
+	var instrList = new InstrStack({}, {}, null, instrList);
+	instrList.position.set(20, 20);
+	backPanelRight.addChild(instrList);
+};
+
+SceneManager._start = function() {
+	StageManager.setAnimate(function() {
+		for (var key in this._isMap) {
+			this._isMap[key].start();
+		}
+	}, this);
 };
 

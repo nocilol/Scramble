@@ -141,6 +141,11 @@ ImageManager.list = function() {
 	
 	// construct load list
 	this._loadList.push(this._backgroundPath = 'images/Background.png');
+	this._loadList.push(this._catPath = 'images/Cat.png');
+	this._loadList.push(this._dogPath = 'images/Dog.png');
+	this._loadList.push(this._panelPath = 'ui/grey_panel.png');
+	this._loadList.push(this._playPath = 'ui/play-button.png');
+	this._loadList.push(this._stopPath = 'ui/stop-button.png');
 	this._loadList.push(this._redButtonPath = 'ui/red_button08.png');
 	this._loadList.push(this._blueButtonPath = 'ui/blue_button09.png');
 	this._loadList.push(this._greenButtonPath = 'ui/green_button09.png');
@@ -184,6 +189,11 @@ ImageManager.setup = function() {
 ImageManager.alias = function() {
 	// alias for shorter notation
 	this.background = loader.resources[this._backgroundPath].texture;
+	this.cat = loader.resources[this._catPath].texture;
+	this.dog = loader.resources[this._dogPath].texture;
+	this.panel = loader.resources[this._panelPath].texture;
+	this.play = loader.resources[this._playPath].texture;
+	this.stop = loader.resources[this._stopPath].texture;
 	this.button = {
 		red : loader.resources[this._redButtonPath].texture,
 		blue : loader.resources[this._blueButtonPath].texture,
