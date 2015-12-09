@@ -69,8 +69,9 @@ Block.prototype._addContents = function() {
 //--------------------------------------------------------------------------
 // Get contents
 //--------------------------------------------------------------------------
-Block.prototype._getContents = function(elements, orient) {
-	if (elements instanceof Array) {
+Block.prototype._getContents = function(element, orient) {
+	// check if element is array
+	if (element instanceof Array) { // array
 		// find new orientation
 		var newOrient = (orient == 'vert' ? 'horz' : 'vert');
 		var newAlign = (newOrient == 'vert' ? 0 : 1);
@@ -78,12 +79,12 @@ Block.prototype._getContents = function(elements, orient) {
 		// create stacker
 		var stacker = new Stacker(newOrient, newAlign, this._outerGap);
 
-		// loop for each elements
+		// loop for each element
 		var i;
-		var leng = elements.length;
+		var leng = element.length;
 		for (i = 0; i < leng; i++) {
 			// get content recursively
-			var content = this._getContents(elements.shift(), newOrient);
+			var content = this._getContents(element.shift(), newOrient);
 
 			// add content to stacker
 			stacker.add(content);
@@ -94,9 +95,9 @@ Block.prototype._getContents = function(elements, orient) {
 
 		// return stacker
 		return stacker;
-	} else {
+	} else { // not array - single object
 		// return ui of element
-		return this['_' + elements.type].apply(this, elements.params);
+		return this['_' + element.type].apply(this, element.params);
 	}
 };
 
@@ -247,7 +248,7 @@ Block.prototype.getProp = function(id) {
 //**************************************************************************
 function InstrBlock(instr, globEnv, locEnv, charEnv, constraint) {
 	// super
-	Draggable.call(this, null, constraint || null);
+	Draggable.call(this, this, constraint || null);
 
 	// set attributes
 	this._instr = instr;
@@ -264,7 +265,7 @@ function InstrBlock(instr, globEnv, locEnv, charEnv, constraint) {
 	this.addChild(this._block);
 };
 
-// extends Container
+// extends Draggable
 InstrBlock.prototype = Object.create(Draggable.prototype);
 InstrBlock.prototype.constructor = InstrBlock;
 
@@ -277,53 +278,116 @@ InstrBlock.prototype._setup = function() {
 };
 
 //--------------------------------------------------------------------------
+// Start instruction block
+//--------------------------------------------------------------------------
+InstrBlock.prototype._start = function() {
+
+	// set elements
+	var values = this._instr['values'];
+	var element = [
+		{type : 'text', params : ['', '시작']}
+	];
+
+	// create block
+	this._block = new Block(element, 'blue');
+
+	// interpret function
+	this._interpretFunc = function() {
+		// delay 1 frame
+		this._locEnv._delay += 1;
+
+		// increase instruction counter
+		this._locEnv._ic += 1;
+	};
+};
+
+//--------------------------------------------------------------------------
+// End instruction block
+//--------------------------------------------------------------------------
+InstrBlock.prototype._end = function() {
+
+	// set elements
+	var values = this._instr['values'];
+	var element = [
+		{type : 'text', params : ['', '종료']}
+	];
+
+	// create block
+	this._block = new Block(element, 'blue');
+
+	// interpret function
+	this._interpretFunc = function() {
+		// initialize instruction counter
+		this._locEnv._ic = 0;
+	};
+};
+
+//--------------------------------------------------------------------------
+// Wait instruction block
+//--------------------------------------------------------------------------
+InstrBlock.prototype._wait = function() {
+
+	// set elements
+	var values = this._instr['values'];
+	var element = [
+		{type : 'input', params : ['delay', values[0]]},
+		{type : 'text', params : ['', ' 프레임 간 대기']}
+	];
+
+	// create block
+	this._block = new Block(element, 'yellow');
+
+	// interpret function
+	this._interpretFunc = function() {
+		// increase instruction counter
+		this._locEnv._ic += 1;
+
+		// set delay
+		var delay = eval(this._block.getProp('delay'));
+		this._locEnv._delay = delay;
+	};
+};
+
+//--------------------------------------------------------------------------
 // Test instruction block
 //--------------------------------------------------------------------------
 InstrBlock.prototype._test = function() {
 	// INPORTANT: JUST KIDDING !!!
 
-	var values = this._instr['values'];
-
 	// set elements
-	var elements = [
-		{type : 'text', params : ['', 'Write console : ']},
+	var values = this._instr['values'];
+	var element = [
 		[
-			{type : 'check', params : ['check1', 'Ahn Jeonghyeon', values[0]]},
-			{type : 'check', params : ['check2', 'Kwon Mingyu', values[1]]}
+			{type : 'check', params : ['check1', '안정현', values[0]]},
+			{type : 'check', params : ['check2', '권민규', values[1]]}
 		],
-		{type : 'choice', params : ['list', ['love', 'like', 'hate', 'play', 'show'], values[2]]},
-		{type : 'input', params : ['text', values[3]]}
+		{type : 'input', params : ['text', values[2]]},
+		{type : 'choice', params : ['list', ['사랑한다.', '좋아한다.', '싫어한다.'], values[3]]}
 	];
 
 	// create block
-	this._block = new Block(elements, 'blue');
+	this._block = new Block(element, 'red');
 
 	// interpret function
 	this._interpretFunc = function() {
 		// get names and the number of us
 		var names;
-		var number;
 		if (this._block.getProp('check1') && this._block.getProp('check2')) {
-			names = 'Ahn Jeonghyeon and Kwon Mingyu'
-			number = 2;
+			names = '안정현과 권민규는';
 		} else if (this._block.getProp('check1')) {
-			names = 'Ahn Jeonghyeon'
-			number = 1;
+			names = '안정현은';
 		} else if (this._block.getProp('check2')) {
-			names = 'Kwon Mingyu'
-			number = 1;
+			names = '권민규는';
 		} else {
-			names = 'Nobody'
-			number = 0;
+			names = '아무도';
 		}
-
-		this._evalAssign('@x', '@x + 0.2');
-		this._evalAssign('@y', '@y + 0.1');
 
 		// print log to console
 		console.log(names,
-			this._block.getProp('list') + (number < 2 ? 's' : ''),
-			this._block.getProp('text'));
+			this._block.getProp('text'), this._block.getProp('list'));
+
+		// increase instruction counter
+		this._locEnv._ic += 1;
 	};
 };
 
@@ -341,7 +405,7 @@ InstrBlock.prototype._evalAssign = function(lvexp, rexp) {
 		lvexp = '#' + lvexp; // add local expression mark
 	
 	// evaluate
-	var evalExp = this._getExp(lvexp, 1) + ' = ' + this._getExp(rexp) + ';'
+	var evalExp = this._getExp(lvexp, 1) + ' = ' + this._getExp(rexp) + ';';
 	eval(evalExp);
 };
 
@@ -403,7 +467,7 @@ InstrBlock.prototype._getVar = function(exp) {
 			return this._locEnv[name]; // return variable
 		else
 			return this._locEnv[name] = 0; // initialize to 0 and return it
-	} else if (scope == '@') {
+	} else if (scope == '@') { // character
 		if (this._charEnv[name])
 			return this._charEnv[name]; // return variable
 		else
@@ -420,5 +484,55 @@ InstrBlock.prototype._getVar = function(exp) {
 InstrBlock.prototype.interpret = function() {
 	// call interpret function
 	this._interpretFunc.call(this);
+};
+
+
+
+
+
+function InstrStack(globEnv, charEnv, constraint, instrList) {
+	// super
+	Stacker.call(this);
+
+	// set attributes
+	this._globEnv = globEnv;
+	this._locEnv = {_ic : 0, _delay : 0};
+	this._charEnv = charEnv;
+	this._constraint = constraint || null;
+	this._instrList = instrList || [];
+
+	// add blocks
+	this._addBlocks();
+}
+
+// extends Stacker
+InstrStack.prototype = Object.create(Stacker.prototype);
+InstrStack.prototype.constructor = InstrStack;
+
+InstrStack.prototype._addBlocks = function() {
+	// clear
+	this.clear();
+
+	// for each instruction in list
+	var i;
+	for (i = 0; i < this._instrList.length; i++) {
+		// create and add block to this(stacker)
+		this.add(new InstrBlock(
+			this._instrList[i], this._globEnv, this._locEnv, this._charEnv, this._constraint));
+	}
+};
+
+InstrStack.prototype.start = function() {
+	// check if delay is needed
+	if (this._locEnv._delay <= 0) {
+		// interpret instruction
+		this.get(this._locEnv._ic).interpret();
+
+		// start next instruction
+		this.start();
+	} else {
+		// decrease delay(frame)
+		this._locEnv._delay -= 1;
+	}
 };
 

@@ -212,6 +212,14 @@ Stacker.prototype.removeMulti = function(index, number) {
 };
 
 //--------------------------------------------------------------------------
+// Remove all objects
+//--------------------------------------------------------------------------
+Stacker.prototype.clear = function() {
+	// remove all objects
+	this.removeMulti(0, this.size());
+};
+
+//--------------------------------------------------------------------------
 // Update
 //--------------------------------------------------------------------------
 Stacker.prototype.update = function() {

@@ -13,19 +13,20 @@ BlockTest.call = function() {
 	this._testBack.height = 768 * 2;
 	this._container.contents.addChild(this._testBack);
 
-	// create test insturction block
-	this._testIns = {
-		id : 'test',
-		values : [true, true, 0, 'each other.']
-	};
-	this._testIb = new InstrBlock(
-		this._testIns, {}, {}, this._testBack, this._testRect);
-	this._container.contents.addChild(this._testIb);
+	// create test insturction stack
+	this._testInstrList = [
+		{id : 'start', values : []},
+		{id : 'test', values : [true, true, '서로를', 0]},
+		{id : 'wait', values : ['30']},
+		{id : 'end', values : []}
+	];
+	this._testIs = new InstrStack(
+		{}, this._testBack, this._testRect, this._testInstrList);
+	this._container.contents.addChild(this._testIs);
 
 	// add test instruction block to stage and reposit it
 	StageManager.stage.add('test', this._container, true);
-	this._testIb.position.set(
-		(1024 - this._testIb.width) / 2, (768 - this._testIb.height) / 2);
+	this._testIs.position.set(200, 100);
 
 	// update container
 	this._container.update();
@@ -35,7 +36,7 @@ BlockTest.call = function() {
 };
 
 BlockTest._animate = function() {
-	// interpret test instruction block
-	this._testIb.interpret();
+	// start test instruction stack
+	this._testIs.start();
 };
 
